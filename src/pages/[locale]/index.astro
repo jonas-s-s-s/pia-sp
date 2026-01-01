@@ -1,0 +1,34 @@
+---
+import DefaultPage from '../../layouts/DefaultPage.astro';
+
+import {getLangFromUrl, getRouteFromUrl, useTranslations} from '../../i18n/utils';
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const route = getRouteFromUrl(Astro.url);
+
+import { languages } from '../../i18n/ui';
+
+---
+
+<>
+    <ul>
+        <li><a href={`/${lang}/home/`}>{t('nav.home')}</a></li>
+        <li><a href={`/${lang}/about/`}>{t('nav.hello')}</a></li>
+        <li><a href="https://twitter.com/astrodotbuild">{t('nav.twitter')}</a></li>
+    </ul>
+
+    <ul>
+        {Object.entries(languages).map(([lang, label]) => (
+                <li>
+                    <a href={`/${lang}/${route || ''}`}>{label}</a>
+                </li>
+        ))}
+    </ul>
+</>
+
+
+
+
+<!--<DefaultPage>-->
+<!--    <Welcome />-->
+<!--</DefaultPage>-->
