@@ -1,2 +1,36 @@
-# pia-sp
-ZS2025
+# Project directory structure
+- `public`
+  - static assets, available at root URL
+- `src`
+  - `actions`
+    - Astro Actions RPC API
+  - `components`
+    - Components used within pages, layouts or other components
+  - `layouts`
+    - Layout is a "template" of some page on the website, it contains components which are the same for every page, like header, footer, etc.
+  - `lib_backend`
+    - Scripts intended for backend use
+  - `lib_frontend`
+    - Scripts that are to be used in the frontend
+  - `middleware`
+    - Middleware is executed on the server before each page is rendered, useful for a login system
+  - `pages`
+    - Main directory containing pages, it uses file-based routing
+  - `styles`
+    - Global stylesheet, since Tailwind is used, we don't need anything more here
+  
+# Various configuration or utility files
+- `.env.development`
+  - Environment variables intended for development purposes
+  - This file is safe to commit, we can add .env.production when deploying, which would contain real secrets
+  - Astro has the ability to automatically switch between .env.development and .env.production, depending on build mode
+- `astro.config.mjs`
+  - Configuration file for the Astro framework
+- `docker-compose.yaml`
+  - Main docker compose file
+- `Dockerfile`
+  - Docker file for the Astro server
+- `drizzle.config.js`
+  - Database configuration, used by the DrizzleORM library
+- `auth.ts`
+  - Configuration file for the BetterAuth library

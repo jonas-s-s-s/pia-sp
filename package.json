@@ -9,6 +9,26 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.16.6"
+    "@astrojs/react": "^4.4.2",
+    "@aws-sdk/client-s3": "^3.958.0",
+    "@tailwindcss/vite": "^4.1.18",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "astro": "^5.16.6",
+    "better-auth": "^1.4.10",
+    "dotenv": "^17.2.3",
+    "dotenv-expand": "^12.0.3",
+    "drizzle-orm": "^0.45.1",
+    "nanostores": "^1.1.0",
+    "nodemailer": "^7.0.12",
+    "pg": "^8.16.3",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "tailwindcss": "^4.1.18"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.16.0",
+    "drizzle-kit": "^0.31.8",
+    "tsx": "^4.21.0"
   }
 }

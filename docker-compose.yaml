@@ -1,0 +1,30 @@
+name: pia_service
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: pia_postgres_db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env.development
+    volumes:
+      - pia_postgres_data:/var/lib/postgresql/data
+
+  minio:
+    image: quay.io/minio/minio:latest
+    container_name: pia_minio
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    env_file:
+      - .env.development
+    volumes:
+      - pia_minio_data:/data
+
+volumes:
+  pia_postgres_data:
+  pia_minio_data:

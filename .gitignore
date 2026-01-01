@@ -134,3 +134,21 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# build output
+dist/
+
+# generated types
+.astro/
+
+# logs
+pnpm-debug.log*
+
+# environment variables
+.env.production
+
+# macOS-specific files
+.DS_Store
+
+# jetbrains setting folder
+.idea/
