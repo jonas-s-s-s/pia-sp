@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {signUp} from "../lib_frontend/auth-client.ts";
+import {signInGithub, signUp} from "../lib_frontend/auth-client.ts";
 
 type SignUpFormProps = {
     onError: (error: any) => void;
@@ -30,6 +30,25 @@ export default function SignUpForm(props: SignUpFormProps) {
         if (error) {
             setLoading(false);
             props.onError(error.message ?? "Sign up failed");
+        }
+    }
+
+    async function handleGitHubSignUp() {
+        const {error} = await signInGithub({
+            onRequest: () => setLoading(true),
+            onSuccess: () => {
+                setLoading(false);
+                props.onSuccess();
+            },
+            onError: (ctx) => {
+                setLoading(false);
+                props.onError(ctx?.error?.message ?? "GitHub sign up failed");
+            },
+        });
+
+        if (error) {
+            setLoading(false);
+            props.onError(error.message ?? "GitHub sign up failed");
         }
     }
 
@@ -68,7 +87,16 @@ export default function SignUpForm(props: SignUpFormProps) {
                 disabled={loading}
                 className="w-full rounded-md bg-zinc-900 px-3 py-2 text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
-                {loading ? "Signing up..." : "Sign Up"}
+                {"Sign Up"}
+            </button>
+
+            <button
+                type="button"
+                disabled={loading}
+                className="mt-3 w-full rounded-md bg-sky-900 px-3 py-2 text-white hover:bg-sky-800 disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={() => handleGitHubSignUp()}
+            >
+                {"Sign up With GitHub"}
             </button>
         </form>
     );

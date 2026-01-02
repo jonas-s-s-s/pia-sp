@@ -4,10 +4,9 @@ import {db} from "./src/db/orm.ts";
 import {admin} from "better-auth/plugins";
 import {user, session, account, verification} from "./src/db/schema/auth-schema.ts";
 
-import {admin as adminPlugin} from "better-auth/plugins";
 import {ac, Customer, Translator} from "./src/lib_backend/user_roles/permissions.ts";
 
-// TODO: Sending email
+// TODO: Sending email?
 // import {sendVerificationEmail, sendChangeEmailVerification, sendPasswordResetEmail} from "./email.ts";
 
 async function beforeUserDelete(user: User) {
@@ -63,7 +62,7 @@ const auth = betterAuth({
         // },
     },
     rateLimit: {
-        enabled: true, // TODO: Enable in production
+        enabled: false, // TODO: Enable in production
         window: 10, // Time window to use for rate limiting. The value should be in seconds.
         max: 25, // The default maximum number of requests allowed within the window.
     },
@@ -89,10 +88,16 @@ const auth = betterAuth({
                 //adminUserIds: [""], // TODO: Set default admin?
                 defaultBanReason: "Ban reason not specified.",
                 defaultBanExpiresIn: 60 * 60 * 24, // 1 day,
-                bannedUserMessage: "You have been banned. Please contact support if you believe this is an error.", // The message to show when a banned user tries to sign in
+                bannedUserMessage: "You have been banned.", // The message to show when a banned user tries to sign in
             }
         )
-    ]
+    ],
+    socialProviders: {
+        github: {
+            clientId: import.meta.env.GITHUB_CLIENT_ID as string,
+            clientSecret: import.meta.env.GITHUB_CLIENT_SECRET as string,
+        },
+    },
 });
 
 

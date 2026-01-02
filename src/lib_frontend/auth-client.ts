@@ -157,3 +157,16 @@ export async function resetPassword(
     );
     return {data, error};
 }
+
+export async function signInGithub(handlers: AuthHandlers = {}) {
+    const {data, error} = await authClient.signIn.social({
+            provider: "github"
+        },
+        {
+            onRequest: ctx => handlers.onRequest?.(ctx),
+            onSuccess: ctx => handlers.onSuccess?.(ctx),
+            onError: ctx => handlers.onError?.(ctx),
+        }
+    );
+    return {data, error};
+}
