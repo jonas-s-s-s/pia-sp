@@ -10,10 +10,12 @@ import SignUpPanel from "../../components/SignUpPanel.tsx";
 const l = getLangFromUrl(Astro.url);
 const t = useTranslations(l);
 
-
-
 const { locale } = Astro.params;
 
+const userData = Astro.locals.user;
+if (userData) {
+    return Astro.redirect(`/${l}/my-profile`);
+}
 ---
 
 <StandardPage>

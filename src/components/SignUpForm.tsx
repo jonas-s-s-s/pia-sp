@@ -37,8 +37,9 @@ export default function SignUpForm(props: SignUpFormProps) {
         const {error} = await signInGithub({
             onRequest: () => setLoading(true),
             onSuccess: () => {
-                setLoading(false);
-                props.onSuccess();
+                // Right now GitHub redirects to GH login page, so we don't need this
+                //setLoading(false);
+                //props.onSuccess();
             },
             onError: (ctx) => {
                 setLoading(false);

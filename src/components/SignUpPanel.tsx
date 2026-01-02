@@ -21,17 +21,21 @@ export default function SignUpPanel(props: SignUpPanelProps) {
                 }}/>
             ) : (
                 <SignUpRoleForm onSuccess={() => {
-                    showOkDialog({
-                        title: "Role Set",
-                        text: "You can now sign in",
-                        buttonText: "Ok",
-                        onClick: () => {
-                            window.location.href = `/${props.lang}/my-profile/`;
-                        },
-                        onClose: () => {
-                            window.location.href = `/${props.lang}/my-profile/`;
-                        }
-                    });
+                    window.location.href = `/${props.lang}/my-profile/`;
+
+                    // The dialog would be useful to remind user to verify his email, we're not doing that so this is not needed
+
+                    // showOkDialog({
+                    //     title: "Role Set",
+                    //     text: "You can now sign in",
+                    //     buttonText: "Ok",
+                    //     onClick: () => {
+                    //         window.location.href = `/${props.lang}/my-profile/`;
+                    //     },
+                    //     onClose: () => {
+                    //         window.location.href = `/${props.lang}/my-profile/`;
+                    //     }
+                    // });
                 }} onError={setError}/>
             )
             }

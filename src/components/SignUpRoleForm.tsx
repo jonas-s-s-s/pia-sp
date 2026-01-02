@@ -15,7 +15,8 @@ export default function SignUpRoleForm({ onSuccess, onError }: SignUpRoleFormPro
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        if (!selectedRole) return onError("Please select a role");
+        if (!selectedRole)
+            return onError("Please select a role");
 
         setLoading(true);
 
