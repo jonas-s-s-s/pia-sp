@@ -46,6 +46,7 @@ const auth = betterAuth({
     // },
     user: {
         deleteUser: {
+
             enabled: true,
             beforeDelete: async (user: any) => {
                 await beforeUserDelete(user);

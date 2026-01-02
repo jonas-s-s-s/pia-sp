@@ -12,6 +12,7 @@ export const ui = {
         'index.sign_up': 'Sign up',
         'index.continue_with_one_of_the_following': 'Continue with one of the following actions:',
         'footer.available_in_langs': 'Available in languages:',
+        'my-profile.my_profile': "My Profile",
     },
     cz: {
         'index.welcome': 'Vítejte',
@@ -19,5 +20,6 @@ export const ui = {
         'index.continue_with_one_of_the_following': 'Pokračujte jednou z následujících akcí:',
         'index.sign_in': 'Přihlásit se',
         'index.sign_up': 'Registrovat se',
+        'my-profile.my_profile': "Můj profil",
     },
 } as const;

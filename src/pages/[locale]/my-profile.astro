@@ -1,4 +1,62 @@
 ---
+import TextAreaDialog from "../../components/dialogs/TextAreaDialog.tsx";
+import SignOutButton from "../../components/SignOutButton.tsx";
+import DeleteAccountButton from "../../components/DeleteAccountButton.tsx";
 
+import {getLangFromUrl, useTranslations} from '../../i18n/utils';
+import {languages} from '../../i18n/ui';
+import {Icon} from 'astro-icon/components'
+import StandardPage from "../../layouts/StandardPage.astro";
+import LinkTile from "../../components/LinkTile.astro"
+import {useState} from "react";
+const l = getLangFromUrl(Astro.url);
+const t = useTranslations(l);
+
+const {locale} = Astro.params;
+
+const userData = Astro.locals.user;
+if (!userData) {
+    return Astro.redirect(`/${l}/sign-in`);
+}
 ---
-<p>Me</p>
+<StandardPage>
+    <div class="flex flex-col items-center">
+        <h1 class="text-center text-3xl font-semibold">{t('my-profile.my_profile')}</h1>
+
+        <div class="flex flex-col max-w-md w-full mx-auto mt-10 p-6 rounded-lg border border-zinc-200 bg-white shadow-md">
+            <ul class="space-y-3">
+                <li class="flex justify-between">
+                    <span class="font-medium text-zinc-700">Name:</span>
+                    <span class="text-zinc-900">{userData.name}</span>
+                </li>
+                <li class="flex justify-between">
+                    <span class="font-medium text-zinc-700">Email:</span>
+                    <span class="text-zinc-900">{userData.email}</span>
+                </li>
+                <li class="flex justify-between">
+                    <span class="font-medium text-zinc-700">Email Verified:</span>
+                    <span class="text-zinc-900">{userData.emailVerified ? 'Yes' : 'No'}</span>
+                </li>
+                <li class="flex justify-between">
+                    <span class="font-medium text-zinc-700">Created At:</span>
+                    <span class="text-zinc-900">{new Date(userData.createdAt).toLocaleString()}</span>
+                </li>
+                <li class="flex justify-between">
+                    <span class="font-medium text-zinc-700">Updated At:</span>
+                    <span class="text-zinc-900">{new Date(userData.updatedAt).toLocaleString()}</span>
+                </li>
+                <li class="flex justify-between">
+                    <span class="font-medium text-zinc-700">Role:</span>
+                    <span class="text-zinc-900">{userData.role}</span>
+                </li>
+                <li class="flex justify-between">
+                    <span class="font-medium text-zinc-700">ID:</span>
+                    <span class="text-zinc-900 font-mono text-sm">{userData.id}</span>
+                </li>
+            </ul>
+        </div>
+        <SignOutButton client:load lang={l}></SignOutButton>
+
+        <DeleteAccountButton client:load lang={l}></DeleteAccountButton>
+    </div>
+</StandardPage>

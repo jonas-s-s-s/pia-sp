@@ -20,3 +20,6 @@ export const Customer = ac.newRole({
 export const Translator = ac.newRole({
     translations: ["create", "update"],
 });
+
+// We also define role names as strings, so we can access them in our other backend code
+export const roleNames = ["Customer", "Translator"];
