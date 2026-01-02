@@ -1,18 +1,23 @@
 export const languages = {
     en: 'English',
-    cz: 'German',
+    cz: 'Czech',
 };
 
 export const defaultLang = 'en';
 
 export const ui = {
     en: {
-        'nav.home': 'Home',
-        'nav.hello': 'Hello',
-        'nav.twitter': 'Twitter',
+        'index.welcome': 'Welcome',
+        'index.sign_in': 'Sign in',
+        'index.sign_up': 'Sign up',
+        'index.continue_with_one_of_the_following': 'Continue with one of the following actions:',
+        'footer.available_in_langs': 'Available in languages:',
     },
     cz: {
-        'nav.home': 'Start',
-        'nav.hello': 'Hallo',
+        'index.welcome': 'Vítejte',
+        'footer.available_in_langs': 'Dostupné v jazycích:',
+        'index.continue_with_one_of_the_following': 'Pokračujte jednou z následujících akcí:',
+        'index.sign_in': 'Přihlásit se',
+        'index.sign_up': 'Registrovat se',
     },
 } as const;

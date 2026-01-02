@@ -1,34 +1,34 @@
 ---
-import DefaultPage from '../../layouts/DefaultPage.astro';
-
-import {getLangFromUrl, getRouteFromUrl, useTranslations} from '../../i18n/utils';
+import {getLangFromUrl, useTranslations} from '../../i18n/utils';
+import {languages} from '../../i18n/ui';
+import {Icon} from 'astro-icon/components'
+import StandardPage from "../../layouts/StandardPage.astro";
+import LinkTile from "../../components/LinkTile.astro"
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
-const route = getRouteFromUrl(Astro.url);
 
-import { languages } from '../../i18n/ui';
+const {locale} = Astro.params;
 
+// Validate language
+if (!locale || !(locale in languages)) {
+    //TODO: 404 REDIRECT??? Somehow move this into middleware?
+    //TODO: Maybe astro library bug???
+    //console.log(locale, "is not a valid locale");
+}
 ---
 
-<>
-    <ul>
-        <li><a href={`/${lang}/home/`}>{t('nav.home')}</a></li>
-        <li><a href={`/${lang}/about/`}>{t('nav.hello')}</a></li>
-        <li><a href="https://twitter.com/astrodotbuild">{t('nav.twitter')}</a></li>
-    </ul>
+<StandardPage>
+    <div class="flex flex-col items-center">
+        <h1 class="text-center text-3xl">{t('index.welcome')}</h1>
+        <h1 class="pt-2 text-center text-2xl">{t('index.continue_with_one_of_the_following')}</h1>
 
-    <ul>
-        {Object.entries(languages).map(([lang, label]) => (
-                <li>
-                    <a href={`/${lang}/${route || ''}`}>{label}</a>
-                </li>
-        ))}
-    </ul>
-</>
-
-
-
-
-<!--<DefaultPage>-->
-<!--    <Welcome />-->
-<!--</DefaultPage>-->
+        <div class="flex flex-row gap-3 justify-center mt-10">
+            <LinkTile href={`/${lang}/sign-in`} title={t('index.sign_in')}>
+                <Icon slot="icon" width="50" height="50" name="mdi:account-key"/>
+            </LinkTile>
+            <LinkTile href={`/${lang}/sign-up`} title={t('index.sign_up')}>
+                <Icon slot="icon" width="50" height="50" name="mdi:register"/>
+            </LinkTile>
+        </div>
+    </div>
+</StandardPage>

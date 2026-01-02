@@ -4,6 +4,8 @@ import node from '@astrojs/node';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 
+import icon from 'astro-icon';
+
 // import {loadEnv} from "vite";
 // const env = loadEnv(process.env.NODE_ENV || "", process.cwd(), "");
 
@@ -13,7 +15,7 @@ export default defineConfig({
         mode: 'standalone',
     }),
 
-    integrations: [react()],
+    integrations: [react(), icon()],
     output: 'server',
 
     vite: {

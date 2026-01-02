@@ -1,0 +1,10 @@
+---
+import { Icon } from 'astro-icon/components'
+import {getLangFromUrl} from "../i18n/utils.ts";
+
+const lang = getLangFromUrl(Astro.url);
+---
+
+<a href={`/${lang}/my-profile`} class="inline-flex">
+    <Icon width="50" height="50" name="mdi:account-circle" class="hover:text-zinc-500"/>
+</a>

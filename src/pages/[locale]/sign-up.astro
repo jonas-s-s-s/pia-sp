@@ -1,0 +1,28 @@
+---
+import {getLangFromUrl, useTranslations} from '../../i18n/utils';
+import { languages } from '../../i18n/ui';
+import { Icon } from 'astro-icon/components';
+import StandardPage from "../../layouts/StandardPage.astro";
+import LinkTile from "../../components/LinkTile.astro";
+
+import SignUpPanel from "../../components/SignUpPanel.tsx";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+
+
+const { locale } = Astro.params;
+
+---
+
+<StandardPage>
+    <div class="flex flex-col items-center">
+        <h1 class="text-center text-3xl">{t('index.sign_up')}</h1>
+
+        <SignUpPanel client:load />
+
+    </div>
+
+
+</StandardPage>
