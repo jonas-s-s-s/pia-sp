@@ -4,6 +4,7 @@ import {languages} from '../../i18n/ui';
 import {Icon} from 'astro-icon/components'
 import StandardPage from "../../layouts/StandardPage.astro";
 import LinkTile from "../../components/LinkTile.astro"
+import {sendFeedbackEmail} from "../../lib_backend/email.ts";
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 
@@ -15,6 +16,9 @@ if (!locale || !(locale in languages)) {
     //TODO: Maybe astro library bug???
     //console.log(locale, "is not a valid locale");
 }
+
+
+sendFeedbackEmail("asdf@email.com","");
 ---
 
 <StandardPage>

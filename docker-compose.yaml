@@ -25,6 +25,17 @@ services:
     volumes:
       - pia_minio_data:/data
 
+  fake-smtp:
+    image: gessnerfl/fake-smtp-server:latest
+    container_name: pia_fake_smtp
+    restart: unless-stopped
+    ports:
+      - "8025:8025" # SMTP
+      - "8080:8080" # web GUI
+      - "8081:8081"
+    env_file:
+      - .env.development
+
 volumes:
   pia_postgres_data:
   pia_minio_data:
