@@ -311,3 +311,63 @@ export async function setProjectFeedback(
 
     return result[0];
 }
+
+export async function getAllProjectsWithFeedback() {
+    const translator = alias(user, "translator");
+
+    const results = await db
+        .select({
+            projectId: project.id,
+            languageCode: project.languageCode,
+            originalFilePrefix: project.originalFilePrefix,
+            translatedFilePrefix: project.translatedFilePrefix,
+            state: project.state,
+            createdAt: project.createdAt,
+
+            customerId: project.customerId,
+            customerName: user.name,
+
+            translatorId: project.translatorId,
+            translatorName: translator.name,
+
+            feedbackText: feedback.text,
+            feedbackCreatedAt: feedback.createdAt,
+        })
+        .from(project)
+        .innerJoin(feedback, eq(feedback.projectId, project.id))
+        .leftJoin(user, eq(project.customerId, user.id))
+        .leftJoin(translator, eq(project.translatorId, translator.id));
+
+    return results;
+}
+
+export async function getAllProjectsByState(state: ProjectState) {
+    const translator = alias(user, "translator");
+
+    const results = await db
+        .select({
+            projectId: project.id,
+            languageCode: project.languageCode,
+            originalFilePrefix: project.originalFilePrefix,
+            translatedFilePrefix: project.translatedFilePrefix,
+            state: project.state,
+            createdAt: project.createdAt,
+
+            customerId: project.customerId,
+            customerName: user.name,
+
+            translatorId: project.translatorId,
+            translatorName: translator.name,
+
+            feedbackText: feedback.text,
+            feedbackCreatedAt: feedback.createdAt,
+        })
+        .from(project)
+        .leftJoin(user, eq(project.customerId, user.id))
+        .leftJoin(translator, eq(project.translatorId, translator.id))
+        .leftJoin(feedback, eq(feedback.projectId, project.id))
+        .where(eq(project.state, state));
+
+    return results;
+}
+

@@ -156,3 +156,45 @@ export async function hasAddProjectFeedbackPermission(user: User) {
 
     return result.success;
 }
+
+
+export async function hasAdminViewProjectsPermission(user: User) {
+    const result = await auth.api.userHasPermission({
+        body: {
+            userId: user.id,
+            permissions: {
+                adminPermissions: ["view_projects"],
+            },
+        },
+    });
+
+    return result.success;
+}
+
+
+export async function hasAdminReactToFeedbackPermission(user: User) {
+    const result = await auth.api.userHasPermission({
+        body: {
+            userId: user.id,
+            permissions: {
+                adminPermissions: ["react_to_feedback"],
+            },
+        },
+    });
+
+    return result.success;
+}
+
+
+export async function hasAdminMarkAsClosedPermission(user: User) {
+    const result = await auth.api.userHasPermission({
+        body: {
+            userId: user.id,
+            permissions: {
+                adminPermissions: ["mark_project_as_closed"],
+            },
+        },
+    });
+
+    return result.success;
+}
