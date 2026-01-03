@@ -4,7 +4,7 @@ import {createAccessControl} from "better-auth/plugins/access";
 export const statement = {
     myLanguages: ["update", "view"],
     upload: ["translated_file", "original_file"],
-    project: ["view_assigned_projects", "create"],
+    project: ["view_assigned_projects", "create", "view_my_projects"],
     download: ["translated_file", "original_file"],
 } as const;
 
@@ -14,8 +14,8 @@ export const ac = createAccessControl(statement);
 // The permissions of each are specified in the newRole arguments below
 
 export const Customer = ac.newRole({
-    download: ["translated_file"],
-    project: ["create"],
+    download: ["original_file", "translated_file"],
+    project: ["create", "view_my_projects"],
     upload: ["original_file"]
 });
 

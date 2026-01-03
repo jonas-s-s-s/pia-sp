@@ -11,6 +11,9 @@ export type ProjectItem = {
     customerName: string | null;
     feedbackText: string | null;
     feedbackCreatedAt: Date | null;
+
+    translatorId?: string | null;
+    translatorName?: string | null;
 };
 
 export type ProjectActionsProps = {

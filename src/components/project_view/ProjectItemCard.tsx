@@ -13,7 +13,7 @@ type ProjectItemCardProps = {
  * have "ProjectAction" attached to it, which can be used to, for example, display buttons or
  * any other controls
  */
-export function ProjectItemCard({ item, lang, setError, ProjectActions }: ProjectItemCardProps) {
+export function ProjectItemCard({item, lang, setError, ProjectActions}: ProjectItemCardProps) {
     return (
         <li className="bg-sky-100 p-3 rounded-lg shadow-sm">
             <p><strong>Project ID:</strong> {item.projectId}</p>
@@ -24,11 +24,14 @@ export function ProjectItemCard({ item, lang, setError, ProjectActions }: Projec
             <p><strong>Created At:</strong> {new Date(item.createdAt).toLocaleString()}</p>
             <p><strong>Customer ID:</strong> {item.customerId || "Null"}</p>
             <p><strong>Customer Name:</strong> {item.customerName || "Null"}</p>
+            {item.translatorId && <p><strong>Translator ID:</strong> {item.translatorId}</p>}
+            {item.translatorName && <p><strong>Translator Name:</strong> {item.translatorName}</p>}
             {item.feedbackText && <p className="bg-amber-200"><strong>Feedback:</strong> {item.feedbackText}</p>}
             {item.feedbackCreatedAt &&
-                <p className="bg-amber-200"><strong>Feedback Date:</strong> {item.feedbackCreatedAt.toLocaleString()}</p>}
+                <p className="bg-amber-200"><strong>Feedback Date:</strong> {item.feedbackCreatedAt.toLocaleString()}
+                </p>}
 
-            {ProjectActions && <ProjectActions item={item} lang={lang} setError={setError} />}
+            {ProjectActions && <ProjectActions item={item} lang={lang} setError={setError}/>}
         </li>
     );
 }

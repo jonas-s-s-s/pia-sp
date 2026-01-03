@@ -3,6 +3,7 @@ import {and, eq, ne} from "drizzle-orm";
 import {project, projectStateEnum} from "../schema/project-schema";
 import {user} from "../schema/auth-schema.ts";
 import {feedback} from "../schema/feedback-schema";
+import {alias} from "drizzle-orm/pg-core";
 
 export async function getProjectById(projectId: string) {
     const result = await db
@@ -185,4 +186,37 @@ export async function createProject(params: {
     }
 
     return result[0];
+}
+
+export async function getProjectsByCustomerId(customerId: string) {
+    const translator = alias(user, "translator");
+
+    const results = await db
+        .select({
+            projectId: project.id,
+            languageCode: project.languageCode,
+            originalFilePrefix: project.originalFilePrefix,
+            translatedFilePrefix: project.translatedFilePrefix,
+            state: project.state,
+            createdAt: project.createdAt,
+
+            customerId: project.customerId,
+            customerName: user.name,
+
+            translatorId: project.translatorId,
+            translatorName: translator.name,
+
+            feedbackText: feedback.text,
+            feedbackCreatedAt: feedback.createdAt,
+        })
+        .from(project)
+
+        .leftJoin(user, eq(project.customerId, user.id))
+
+        .leftJoin(translator, eq(project.translatorId, translator.id))
+
+        .leftJoin(feedback, eq(feedback.projectId, project.id))
+        .where(eq(project.customerId, customerId));
+
+    return results;
 }

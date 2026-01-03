@@ -273,7 +273,7 @@ export const translator = {
                 throw new ActionError({code: "NOT_FOUND", message: "Project not found"});
             }
 
-            if (project.translatorId !== user.id || project.customerId !== user.id) {
+            if (project.translatorId !== user.id && project.customerId !== user.id) {
                 throw new ActionError({
                     code: "FORBIDDEN",
                     message: "You aren't assigned to this project"

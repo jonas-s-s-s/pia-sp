@@ -1,21 +1,18 @@
-import { ActionError, defineAction } from "astro:actions";
-import { z } from "astro:schema";
-import type { User } from "../../auth.ts";
+import {ActionError, defineAction} from "astro:actions";
+import {z} from "astro:schema";
+import type {User} from "../../auth.ts";
 
-import { isUserLoggedIn } from "./actionUtils/userAuth.ts";
-import { isIso6391 } from "../lib_frontend/iso-639-1.ts";
+import {isUserLoggedIn} from "./actionUtils/userAuth.ts";
+import {isIso6391} from "../lib_frontend/iso-639-1.ts";
 
 import {
-    hasCreateProjectPermission, hasUploadOriginalFilePermission, hasUploadTranslatedFilePermission,
+    hasCreateProjectPermission, hasUploadOriginalFilePermission, hasViewMyProjectsPermission,
 } from "../lib_backend/user_roles/userRoleManager.ts";
 
 import {
-    changeProjectState,
-    createProject, getProjectById, setOriginalFilePrefix, setTranslatedFilePrefix,
+    createProject, getProjectsByCustomerId, setOriginalFilePrefix,
 } from "../db/data_access/project.ts";
-import {deleteProjectBucketPrefix, projectBucketUploadFile} from "../lib_backend/objectStorage.ts";
-import {getUserById} from "../db/data_access/user.ts";
-import {sendProjectCompletedNotification} from "../lib_backend/email.ts";
+import {projectBucketUploadFile} from "../lib_backend/objectStorage.ts";
 
 export const customer = {
     createProject: defineAction({
@@ -28,7 +25,7 @@ export const customer = {
             // 1) Permission check
             //#############################################################################
             if (!await hasCreateProjectPermission(user)) {
-                throw new ActionError({ code: "UNAUTHORIZED" });
+                throw new ActionError({code: "UNAUTHORIZED"});
             }
 
             // 2) Validate language code
@@ -110,5 +107,24 @@ export const customer = {
 
         }
     }),
+    getMyProjects: defineAction({
+        input: z.object({}),
+        handler: async (input, context) => {
+            const user: User = isUserLoggedIn(context);
 
+            if (!await hasViewMyProjectsPermission(user)) {
+                throw new ActionError({
+                    code: "UNAUTHORIZED",
+                    message: "You don't have permission to view projects"
+                });
+            }
+
+            try {
+                const projects = await getProjectsByCustomerId(user.id);
+                return projects;
+            } catch (e) {
+                throw new Error("Unable to fetch projects");
+            }
+        }
+    }),
 };
