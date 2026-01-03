@@ -52,7 +52,9 @@ const userData = Astro.locals.user;
 
         {/* 3) CUSTOMER */}
         {userData?.role === "Customer" && (
-                <div>Customer</div>
+                <LinkTile href={`/${lang}/customer/new-project`} title={t('index.new_project')}>
+                    <Icon slot="icon" width="50" height="50" name="mdi:file-document-plus"/>
+                </LinkTile>
         )}
 
     </div>

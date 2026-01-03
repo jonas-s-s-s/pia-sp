@@ -1,12 +1,19 @@
 import React, { useState } from "react";
-import {uploadTranslatedFile} from "../../lib_frontend/uploadTranslatedFile.ts";
 
-type FileUploaderProps = {
+type AbstractFileUploaderProps = {
     lang: string;
-    projectId: string;
+    title: string;
+    onUploadClick: (file: File) => Promise<void>;
+    onError?: (error: unknown) => void; // Callback for errors
+    footer?: React.ReactNode;
 };
 
-export default function FileUploader(props: FileUploaderProps) {
+export default function AbstractFileUploader({
+                                                 title,
+                                                 onUploadClick,
+                                                 onError,
+                                                 footer,
+                                             }: AbstractFileUploaderProps) {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [status, setStatus] = useState<string>("");
 
@@ -21,19 +28,17 @@ export default function FileUploader(props: FileUploaderProps) {
         setStatus("Uploading...");
 
         try {
-            await uploadTranslatedFile(selectedFile, props.projectId);
+            await onUploadClick(selectedFile);
+            setStatus("Upload complete.");
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : String(err);
-            setStatus(`Error: ${message}`);
-            return;
+            onError?.(err);
+            setStatus("");
         }
-
-        setStatus("Upload complete.")
     };
 
     return (
         <div className="max-w-sm mx-auto mt-6 p-6 rounded-lg border border-zinc-200 bg-white shadow-sm">
-            <h2 className="text-lg font-semibold mb-4">Upload Translated File</h2>
+            <h2 className="text-lg font-semibold mb-4">{title}</h2>
 
             <div className="flex flex-col gap-4">
                 <input
@@ -41,6 +46,7 @@ export default function FileUploader(props: FileUploaderProps) {
                     onChange={handleFileChange}
                     className="border border-zinc-200 rounded-lg px-3 py-2"
                 />
+
                 <button
                     onClick={handleUpload}
                     disabled={!selectedFile}
@@ -53,21 +59,10 @@ export default function FileUploader(props: FileUploaderProps) {
                     Upload File
                 </button>
 
-                <a
-                    href={`/${props.lang}/translator/assigned-projects`}
-                    className="select-none text-center border bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 px-3 py-1 rounded-lg"
-                >
-                    Go Back
-                </a>
+                {footer}
 
                 {status && (
-                    <div
-                        className={`whitespace-pre-wrap ${
-                            status.startsWith("Error") ? "text-red-500" : "text-green-600"
-                        }`}
-                    >
-                        {status}
-                    </div>
+                    <div className="text-green-600 whitespace-pre-wrap">{status}</div>
                 )}
             </div>
         </div>

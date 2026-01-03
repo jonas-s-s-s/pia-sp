@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import {actions} from "astro:actions";
-import {state} from "@aws-sdk/core";
 
 type ProjectsViewProps = {
     lang: string;

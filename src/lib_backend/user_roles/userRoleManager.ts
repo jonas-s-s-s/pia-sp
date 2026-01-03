@@ -90,3 +90,29 @@ export async function hasDownloadOriginalFilePermission(user: User) {
 
     return result.success;
 }
+
+export async function hasCreateProjectPermission(user: User) {
+    const result = await auth.api.userHasPermission({
+        body: {
+            userId: user.id,
+            permissions: {
+                project: ["create"],
+            },
+        },
+    });
+
+    return result.success;
+}
+
+export async function hasUploadOriginalFilePermission(user: User) {
+    const result = await auth.api.userHasPermission({
+        body: {
+            userId: user.id,
+            permissions: {
+                upload: ["original_file"],
+            },
+        },
+    });
+
+    return result.success;
+}

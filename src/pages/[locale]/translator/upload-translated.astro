@@ -1,7 +1,7 @@
 ---
 import { getLangFromUrl, useTranslations } from '../../../i18n/utils';
 import StandardPage from "../../../layouts/StandardPage.astro";
-import FileUploader from '../../../components/translator/FileUploader.tsx';
+import TranslatedFileUploader from '../../../components/translator/TranslatedFileUploader.tsx';
 
 const l = getLangFromUrl(Astro.url);
 const t = useTranslations(l);
@@ -23,7 +23,7 @@ const projectId = Astro.url.searchParams.get("projectId") || '';
         ) : (
                 <>
                     <h1 class="text-center text-3xl">Upload Translated Project</h1>
-                    <FileUploader client:load lang={l} projectId={projectId} />
+                    <TranslatedFileUploader client:load lang={l} projectId={projectId} />
                 </>
         )}
     </div>

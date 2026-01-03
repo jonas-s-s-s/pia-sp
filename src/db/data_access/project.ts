@@ -158,3 +158,31 @@ export async function getProjectsByTranslatorIdNonAssigned(
 
     return results;
 }
+
+export async function createProject(params: {
+    customerId: string;
+    languageCode: string;
+    translatorId?: string | null;
+    originalFilePrefix?: string | null;
+    translatedFilePrefix?: string | null;
+}) {
+    const id = crypto.randomUUID();
+
+    const result = await db
+        .insert(project)
+        .values({
+            id,
+            customerId: params.customerId,
+            languageCode: params.languageCode,
+            translatorId: params.translatorId ?? null,
+            originalFilePrefix: params.originalFilePrefix ?? null,
+            translatedFilePrefix: params.translatedFilePrefix ?? null,
+        })
+        .returning();
+
+    if (!result[0]) {
+        throw new Error("Project could not be created.");
+    }
+
+    return result[0];
+}

@@ -17,6 +17,7 @@ export const ui = {
         'index.language_settings': 'Language Settings',
         'index.assigned_projects': 'Assigned Projects',
         'index.other_projects': 'Other Projects',
+        'index.new_project': 'New Project',
     },
     cz: {
         'index.welcome': 'Vítejte',
@@ -29,5 +30,6 @@ export const ui = {
         'index.language_settings': 'Nastavení jazyka',
         'index.assigned_projects': 'Přiřazené projekty',
         'index.other_projects': 'Ostatní projekty',
+        'index.new_project': 'Nový Project',
     },
 } as const;
