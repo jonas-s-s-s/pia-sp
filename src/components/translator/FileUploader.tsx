@@ -25,6 +25,7 @@ export default function FileUploader(props: FileUploaderProps) {
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
             setStatus(`Error: ${message}`);
+            return;
         }
 
         setStatus("Upload complete.")

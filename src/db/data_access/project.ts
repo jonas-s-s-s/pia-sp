@@ -2,11 +2,19 @@ import {db} from "../orm";
 import {and, eq, ne} from "drizzle-orm";
 import {project, projectStateEnum} from "../schema/project-schema";
 import {user} from "../schema/auth-schema.ts";
+import {feedback} from "../schema/feedback-schema";
 
 export async function getProjectById(projectId: string) {
     const result = await db
-        .select()
+        .select({
+            project,
+            feedback: {
+                text: feedback.text,
+                createdAt: feedback.createdAt,
+            },
+        })
         .from(project)
+        .leftJoin(feedback, eq(feedback.projectId, project.id))
         .where(eq(project.id, projectId))
         .limit(1);
 
@@ -64,7 +72,6 @@ export async function changeProjectState(projectId: string, newState: ProjectSta
     return result[0];
 }
 
-
 export async function getProjectsByTranslatorId(translatorId: string) {
     // TODO: In a real project this would use some kind of pagination
 
@@ -78,9 +85,12 @@ export async function getProjectsByTranslatorId(translatorId: string) {
             createdAt: project.createdAt,
             customerId: user.id,
             customerName: user.name,
+            feedbackText: feedback.text,
+            feedbackCreatedAt: feedback.createdAt,
         })
         .from(project)
         .leftJoin(user, eq(project.customerId, user.id))
+        .leftJoin(feedback, eq(feedback.projectId, project.id))
         .where(eq(project.translatorId, translatorId));
 
     return results;
@@ -102,9 +112,12 @@ export async function getProjectsByTranslatorIdAndState(
             createdAt: project.createdAt,
             customerId: user.id,
             customerName: user.name,
+            feedbackText: feedback.text,
+            feedbackCreatedAt: feedback.createdAt,
         })
         .from(project)
         .leftJoin(user, eq(project.customerId, user.id))
+        .leftJoin(feedback, eq(feedback.projectId, project.id))
         .where(
             and(
                 eq(project.translatorId, translatorId),
@@ -114,7 +127,6 @@ export async function getProjectsByTranslatorIdAndState(
 
     return results;
 }
-
 
 export async function getProjectsByTranslatorIdNonAssigned(
     translatorId: string,
@@ -131,9 +143,12 @@ export async function getProjectsByTranslatorIdNonAssigned(
             createdAt: project.createdAt,
             customerId: user.id,
             customerName: user.name,
+            feedbackText: feedback.text,
+            feedbackCreatedAt: feedback.createdAt,
         })
         .from(project)
         .leftJoin(user, eq(project.customerId, user.id))
+        .leftJoin(feedback, eq(feedback.projectId, project.id))
         .where(
             and(
                 eq(project.translatorId, translatorId),

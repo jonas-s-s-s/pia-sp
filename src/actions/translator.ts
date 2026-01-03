@@ -118,7 +118,8 @@ export const translator = {
 
             // 2) Verify that project exists, and that user is assigned to it as translator
             //#############################################################################
-            const project = await getProjectById(projectId);
+            const data = await getProjectById(projectId);
+            const project = data?.project;
 
             if (!project) {
                 throw new ActionError({code: "NOT_FOUND", message: "Project not found"});
@@ -140,7 +141,17 @@ export const translator = {
                 });
             }
 
-            // 4) Delete the current file if it exists
+            // 4) Verify that the file is < 5 MB
+            //#############################################################################
+            const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+            if (file.size > MAX_FILE_SIZE) {
+                throw new ActionError({
+                    code: "BAD_REQUEST",
+                    message: "File size must be less than 5 MB"
+                });
+            }
+
+            // 5) Delete the current file if it exists
             //#############################################################################
             if (project.translatedFilePrefix) {
                 try {
@@ -153,7 +164,7 @@ export const translator = {
                 }
             }
 
-            // 5) Upload file to bucket
+            // 6) Upload file to bucket
             //#############################################################################
             const prefix = `${projectId}/${file.name}`;
             const buffer = Buffer.from(await file.arrayBuffer());
@@ -164,11 +175,11 @@ export const translator = {
                 throw new ActionError({code: "INTERNAL_SERVER_ERROR", message: "Unable to upload file to bucket."});
             }
 
-            // 6) The translated file prefix should now point to this file
+            // 7) The translated file prefix should now point to this file
             //#############################################################################
             await setTranslatedFilePrefix(projectId, prefix);
 
-            // 7) Change project state
+            // 8) Change project state
             //#############################################################################
             await changeProjectState(projectId, "COMPLETED");
         }
@@ -246,7 +257,8 @@ export const translator = {
 
             // 1) Verify that project exists, and that user is assigned to it as a translator or customer
             //#############################################################################
-            const project = await getProjectById(input.projectId);
+            const data = await getProjectById(input.projectId);
+            const project = data?.project;
 
             if (!project) {
                 throw new ActionError({code: "NOT_FOUND", message: "Project not found"});
