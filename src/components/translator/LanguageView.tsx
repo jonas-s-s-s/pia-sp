@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {actions} from "astro:actions";
+import {isIso6391} from "../../lib_frontend/iso-639-1.ts";
 
 type LanguageViewProps = {
     lang: string;
@@ -24,6 +25,16 @@ export default function LanguageView(props: LanguageViewProps) {
     async function handleAddLanguage() {
         if (!newLanguage.trim())
             return;
+
+        if (items.includes(newLanguage.trim())) {
+            setError("Language already added");
+            return;
+        }
+
+        if(!isIso6391(newLanguage.trim())) {
+            setError("Invalid language code");
+            return;
+        }
 
         setAdding(true);
         setError(null);
@@ -68,14 +79,6 @@ export default function LanguageView(props: LanguageViewProps) {
                 className="flex justify-center max-w-sm mx-auto mt-10 p-6 rounded-lg border border-zinc-200 bg-white shadow-sm min-w-1/3">
                 <div
                     className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="max-w-sm mx-auto mt-10 p-6 rounded-lg border border-zinc-200 bg-white shadow-sm min-w-1/3">
-                <div className="text-center mt-10 text-red-500">Error: {error}</div>
             </div>
         );
     }
@@ -127,6 +130,9 @@ export default function LanguageView(props: LanguageViewProps) {
                 </button>
             </div>
 
+            {error && (
+                <div className="text-center mt-5 text-red-500">Error: {error}</div>
+            )}
 
         </div>
     );
