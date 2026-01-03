@@ -1,5 +1,5 @@
 import {db} from "../orm";
-import {eq} from "drizzle-orm";
+import {and, eq, ne} from "drizzle-orm";
 import {project, projectStateEnum} from "../schema/project-schema";
 import {user} from "../schema/auth-schema.ts";
 
@@ -82,6 +82,64 @@ export async function getProjectsByTranslatorId(translatorId: string) {
         .from(project)
         .leftJoin(user, eq(project.customerId, user.id))
         .where(eq(project.translatorId, translatorId));
+
+    return results;
+}
+
+export async function getProjectsByTranslatorIdAndState(
+    translatorId: string,
+    state: ProjectState,
+) {
+    // TODO: In a real project this would use some kind of pagination
+
+    const results = await db
+        .select({
+            projectId: project.id,
+            languageCode: project.languageCode,
+            originalFilePrefix: project.originalFilePrefix,
+            translatedFilePrefix: project.translatedFilePrefix,
+            state: project.state,
+            createdAt: project.createdAt,
+            customerId: user.id,
+            customerName: user.name,
+        })
+        .from(project)
+        .leftJoin(user, eq(project.customerId, user.id))
+        .where(
+            and(
+                eq(project.translatorId, translatorId),
+                eq(project.state, state),
+            ),
+        );
+
+    return results;
+}
+
+
+export async function getProjectsByTranslatorIdNonAssigned(
+    translatorId: string,
+) {
+    // TODO: In a real project this would use some kind of pagination
+
+    const results = await db
+        .select({
+            projectId: project.id,
+            languageCode: project.languageCode,
+            originalFilePrefix: project.originalFilePrefix,
+            translatedFilePrefix: project.translatedFilePrefix,
+            state: project.state,
+            createdAt: project.createdAt,
+            customerId: user.id,
+            customerName: user.name,
+        })
+        .from(project)
+        .leftJoin(user, eq(project.customerId, user.id))
+        .where(
+            and(
+                eq(project.translatorId, translatorId),
+                ne(project.state, "ASSIGNED"),
+            ),
+        );
 
     return results;
 }

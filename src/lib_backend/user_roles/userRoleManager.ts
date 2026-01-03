@@ -77,3 +77,16 @@ export async function hasDownloadTranslatedFilePermission(user: User) {
 
     return result.success;
 }
+
+export async function hasDownloadOriginalFilePermission(user: User) {
+    const result = await auth.api.userHasPermission({
+        body: {
+            userId: user.id,
+            permissions: {
+                download: ["original_file"],
+            },
+        },
+    });
+
+    return result.success;
+}

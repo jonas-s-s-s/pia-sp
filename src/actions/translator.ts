@@ -3,6 +3,7 @@ import {z} from "astro:schema";
 import {isUserLoggedIn} from "./actionUtils/userAuth.ts";
 import type {User} from "../../auth.ts";
 import {
+    hasDownloadOriginalFilePermission,
     hasDownloadTranslatedFilePermission,
     hasUpdateMyLanguagesPermission, hasUploadTranslatedFilePermission, hasViewAssignedProjectsPermission,
     hasViewMyLanguagesPermission
@@ -16,7 +17,7 @@ import {isIso6391} from "../lib_frontend/iso-639-1.ts";
 import {
     changeProjectState,
     getProjectById,
-    getProjectsByTranslatorId,
+    getProjectsByTranslatorId, getProjectsByTranslatorIdAndState, getProjectsByTranslatorIdNonAssigned,
     setTranslatedFilePrefix
 } from "../db/data_access/project.ts";
 import {
@@ -130,6 +131,15 @@ export const translator = {
                 });
             }
 
+            // 3) File can be uploaded only if the project is in "ASSIGNED" state
+            //#############################################################################
+            if (project.state !== "ASSIGNED") {
+                throw new ActionError({
+                    code: "BAD_REQUEST",
+                    message: "File can be uploaded only if the project is in 'ASSIGNED' state"
+                });
+            }
+
             // 4) Delete the current file if it exists
             //#############################################################################
             if (project.translatedFilePrefix) {
@@ -174,7 +184,41 @@ export const translator = {
             }
 
             try {
+                return await getProjectsByTranslatorIdAndState(user.id, "ASSIGNED");
+            } catch (e) {
+                throw new ActionError({code: "INTERNAL_SERVER_ERROR"});
+            }
+        },
+    }),
+
+    getAllMyProjects: defineAction({
+        input: z.object({}),
+        handler: async (input, context) => {
+            const user: User = isUserLoggedIn(context);
+
+            if (!await hasViewAssignedProjectsPermission(user)) {
+                throw new ActionError({code: "UNAUTHORIZED"});
+            }
+
+            try {
                 return await getProjectsByTranslatorId(user.id);
+            } catch (e) {
+                throw new ActionError({code: "INTERNAL_SERVER_ERROR"});
+            }
+        },
+    }),
+
+    getAllMyNonAssignedProjects: defineAction({
+        input: z.object({}),
+        handler: async (input, context) => {
+            const user: User = isUserLoggedIn(context);
+
+            if (!await hasViewAssignedProjectsPermission(user)) {
+                throw new ActionError({code: "UNAUTHORIZED"});
+            }
+
+            try {
+                return await getProjectsByTranslatorIdNonAssigned(user.id);
             } catch (e) {
                 throw new ActionError({code: "INTERNAL_SERVER_ERROR"});
             }
@@ -189,7 +233,14 @@ export const translator = {
         handler: async (input, context) => {
             const user: User = isUserLoggedIn(context);
 
-            if (!await hasDownloadTranslatedFilePermission(user)) {
+            // 0) Check user's permission to download file
+            //#############################################################################
+
+            if (input.type == "translated" && !await hasDownloadTranslatedFilePermission(user)) {
+                throw new ActionError({code: "UNAUTHORIZED"});
+            }
+
+            if (input.type == "original" && !await hasDownloadOriginalFilePermission(user)) {
                 throw new ActionError({code: "UNAUTHORIZED"});
             }
 

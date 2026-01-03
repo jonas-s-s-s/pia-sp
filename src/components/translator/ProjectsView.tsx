@@ -1,8 +1,10 @@
 import React, {useEffect, useState} from "react";
 import {actions} from "astro:actions";
+import {state} from "@aws-sdk/core";
 
 type ProjectsViewProps = {
     lang: string;
+    projectType?: "ASSIGNED" | "OTHER";
 };
 
 type projectItem = {
@@ -44,13 +46,17 @@ export default function ProjectsView(props: ProjectsViewProps) {
         const fetchProjects = async () => {
             setLoading(true);
 
-            const {error, data} = await actions.translator.getMyAssignedProjects({});
-            if (error) {
-                setError(error.message || "Error " + error.code);
-            } else if (data) {
-                setItems(data);
+            let result;
+            if (props.projectType === "OTHER") {
+                result = await actions.translator.getAllMyNonAssignedProjects({});
+            } else {
+                result = await actions.translator.getMyAssignedProjects({});
             }
-
+            if (result.error) {
+                setError(result.error.message || "Error " + result.error.code);
+            } else if (result.data) {
+                setItems(result.data);
+            }
             setLoading(false);
         };
 
@@ -90,26 +96,30 @@ export default function ProjectsView(props: ProjectsViewProps) {
                                 <p><strong>Customer Name:</strong> {item.customerName || "Null"}</p>
 
                                 {/* Buttons */}
-                                <div className="mt-3 flex gap-2 flex-col">
-                                    <button
-                                        onClick={() => handleDownloadOriginal(item.projectId)}
-                                        className="border bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 px-3 py-1 rounded-lg"
-                                    >
-                                        Download Original
-                                    </button>
-                                    <button
-                                        onClick={() => handleDownloadTranslated(item.projectId)}
-                                        className="border bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 px-3 py-1 rounded-lg"
-                                    >
-                                        Download Translated
-                                    </button>
-                                    <a
-                                        href={`/${props.lang}/translator/upload-translated?projectId=${item.projectId}`}
-                                        className="select-none text-center border bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 px-3 py-1 rounded-lg"
-                                    >
-                                        Upload Translated
-                                    </a>
-                                </div>
+                                {item.state === "ASSIGNED" && (
+                                    <div className="mt-3 flex gap-2 flex-col">
+                                        <button
+                                            onClick={() => handleDownloadOriginal(item.projectId)}
+                                            className="border bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 px-3 py-1 rounded-lg"
+                                        >
+                                            Download Original
+                                        </button>
+                                        <button
+                                            onClick={() => handleDownloadTranslated(item.projectId)}
+                                            className="border bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 px-3 py-1 rounded-lg"
+                                        >
+                                            Download Translated
+                                        </button>
+                                        <a
+                                            href={`/${props.lang}/translator/upload-translated?projectId=${item.projectId}`}
+                                            className="select-none text-center border bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 px-3 py-1 rounded-lg"
+                                        >
+                                            Upload Translated
+                                        </a>
+                                    </div>
+                                )
+                                }
+
                             </li>
                         ))}
                     </ul>

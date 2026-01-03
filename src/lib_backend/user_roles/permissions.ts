@@ -5,7 +5,7 @@ export const statement = {
     myLanguages: ["update", "view"],
     upload: ["translated_file"],
     project: ["view_assigned_projects"],
-    download: ["translated_file"],
+    download: ["translated_file", "original_file"],
 } as const;
 
 export const ac = createAccessControl(statement);
