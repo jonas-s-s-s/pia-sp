@@ -371,3 +371,35 @@ export async function getAllProjectsByState(state: ProjectState) {
     return results;
 }
 
+export async function getAllProjectsWithFeedbackByState(
+    state: ProjectState,
+) {
+    const translator = alias(user, "translator");
+
+    const results = await db
+        .select({
+            projectId: project.id,
+            languageCode: project.languageCode,
+            originalFilePrefix: project.originalFilePrefix,
+            translatedFilePrefix: project.translatedFilePrefix,
+            state: project.state,
+            createdAt: project.createdAt,
+
+            customerId: project.customerId,
+            customerName: user.name,
+
+            translatorId: project.translatorId,
+            translatorName: translator.name,
+
+            feedbackText: feedback.text,
+            feedbackCreatedAt: feedback.createdAt,
+        })
+        .from(project)
+
+        .innerJoin(feedback, eq(feedback.projectId, project.id))
+        .leftJoin(user, eq(project.customerId, user.id))
+        .leftJoin(translator, eq(project.translatorId, translator.id))
+        .where(eq(project.state, state));
+
+    return results;
+}

@@ -2,6 +2,7 @@
 import {getLangFromUrl, useTranslations} from '../../../i18n/utils';
 import { languages } from '../../../i18n/ui';
 import StandardPage from "../../../layouts/StandardPage.astro";
+import AdminProjectView from "../../../components/administrator/AdminProjectView.tsx";
 
 const l = getLangFromUrl(Astro.url);
 const t = useTranslations(l);
@@ -16,7 +17,7 @@ if (!userData || userData.role !== "Administrator") {
 <StandardPage>
     <div class="flex flex-col items-center">
         <h1 class="text-center text-3xl">Admin Project Viewer</h1>
-
+        <AdminProjectView client:load lang={l}></AdminProjectView>
     </div>
 
 

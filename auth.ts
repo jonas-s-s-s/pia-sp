@@ -1,4 +1,4 @@
-import {ac, Customer, Translator} from "./src/lib_backend/user_roles/permissions.ts";
+import {ac, Administrator, Customer, Translator} from "./src/lib_backend/user_roles/permissions.ts";
 
 import {betterAuth, type GenericEndpointContext} from "better-auth";
 import {drizzleAdapter} from "better-auth/adapters/drizzle";
@@ -84,6 +84,7 @@ const auth = betterAuth({
                 roles: {
                     Customer,
                     Translator,
+                    Administrator,
                 },
                 defaultRole: "Customer",
                 //adminUserIds: [""], // TODO: Set default admin?

@@ -6,7 +6,7 @@ import {isUserLoggedIn} from "./actionUtils/userAuth.ts";
 
 import {
     getAllProjectsWithFeedback,
-    getAllProjectsByState, changeProjectState, getProjectById,
+    getAllProjectsByState, changeProjectState, getProjectById, getAllProjectsWithFeedbackByState,
 } from "../db/data_access/project.ts";
 
 import {
@@ -35,6 +35,7 @@ export const administrator = {
             }
         },
     }),
+
     getAllProjectsByState: defineAction({
         input: z.object({
             state: z.enum([
@@ -88,7 +89,17 @@ export const administrator = {
                 });
             }
 
-            // 3) Close project
+            // 3) Verify that project is in the "APPROVED" phase
+            //#############################################################################
+
+            if(project.state !== "APPROVED") {
+                throw new ActionError({
+                    code: "BAD_REQUEST",
+                    message: "Only APPROVED project can be closed",
+                });
+            }
+
+            // 4) Close project
             //#############################################################################
             try {
                 return await changeProjectState(project.id, "CLOSED");
@@ -104,23 +115,47 @@ export const administrator = {
     reactToFeedback: defineAction({
         input: z.object({
             projectId: z.string(),
-            destinationEmail: z.string(),
+            destinationUserID: z.string(),
             message: z.string()
         }),
         handler: async (input, context) => {
             const user: User = isUserLoggedIn(context);
 
-            // 1) Permission check
-            //#############################################################################
             if (!await hasAdminReactToFeedbackPermission(user)) {
                 throw new ActionError({code: "UNAUTHORIZED"});
             }
 
             // TODO: Send email
-            console.log("ADMIN SEND EMAIL: " + input.destinationEmail + " " + input.message);
+            console.log("ADMIN SEND EMAIL: " + input.destinationUserID + " " + input.message);
         },
     }),
 
+    getAllProjectsWithFeedbackByState: defineAction({
+        input: z.object({
+            state: z.enum([
+                "CREATED",
+                "ASSIGNED",
+                "COMPLETED",
+                "APPROVED",
+                "CLOSED",
+            ]),
+        }),
+        handler: async (input, context) => {
+            const user: User = isUserLoggedIn(context);
 
+            if (!await hasAdminViewProjectsPermission(user)) {
+                throw new ActionError({ code: "UNAUTHORIZED" });
+            }
+
+            try {
+                return await getAllProjectsWithFeedbackByState(input.state);
+            } catch {
+                throw new ActionError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Unable to fetch projects with feedback by state",
+                });
+            }
+        },
+    }),
 };
 

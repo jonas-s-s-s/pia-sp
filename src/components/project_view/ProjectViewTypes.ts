@@ -22,3 +22,10 @@ export type ProjectActionsProps = {
     setError: React.Dispatch<React.SetStateAction<string | null>>;
     deleteProjectItem: (projectId: string) => void;
 };
+
+export type ProjectState =
+    | "CREATED"
+    | "ASSIGNED"
+    | "COMPLETED"
+    | "APPROVED"
+    | "CLOSED";
