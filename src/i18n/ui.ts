@@ -15,6 +15,8 @@ export const ui = {
         'my-profile.my_profile': "My Profile",
         'role-change.choose_role': 'Role Settings',
         'index.language_settings': 'Language Settings',
+        'index.assigned_projects': 'Assigned Projects',
+        'index.closed_projects': 'Closed Projects',
     },
     cz: {
         'index.welcome': 'Vítejte',
@@ -25,5 +27,7 @@ export const ui = {
         'my-profile.my_profile': "Můj profil",
         'role-change.choose_role': 'Nastavení role',
         'index.language_settings': 'Nastavení jazyka',
+        'index.assigned_projects': 'Přiřazené projekty',
+        'index.closed_projects': 'Uzavřené projekty',
     },
 } as const;

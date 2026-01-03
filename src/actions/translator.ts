@@ -77,4 +77,14 @@ export const translator = {
         },
     }),
 
+    uploadTranslatedFile: defineAction({
+        accept: "form",
+        handler: async (input) => {
+            // Receive and validate the file
+            const a = input;
+            const b = input;
+
+        }
+    })
+
 };

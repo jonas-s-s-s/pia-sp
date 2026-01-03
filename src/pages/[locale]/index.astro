@@ -42,6 +42,12 @@ const userData = Astro.locals.user;
                 <LinkTile href={`/${lang}/translator/language-settings`} title={t('index.language_settings')}>
                     <Icon slot="icon" width="50" height="50" name="mdi:language-box"/>
                 </LinkTile>
+                <LinkTile href={`/${lang}/translator/assigned-projects`} title={t('index.assigned_projects')}>
+                    <Icon slot="icon" width="50" height="50" name="mdi:file-document-edit"/>
+                </LinkTile>
+                <LinkTile href={`/${lang}/translator/closed-projects`} title={t('index.closed_projects')}>
+                    <Icon slot="icon" width="50" height="50" name="mdi:file-document-check"/>
+                </LinkTile>
         )}
 
         {/* 3) CUSTOMER */}

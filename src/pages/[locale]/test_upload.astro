@@ -1,0 +1,63 @@
+---
+---
+
+
+<div class="file-upload-container">
+    <input type="file" id="fileInput" />
+    <button id="uploadBtn" disabled>Upload File</button>
+    <div id="status" style="margin-top: 1rem;"></div>
+</div>
+
+<script>
+    //######################################
+    //# UI
+    //######################################
+
+    import {actions} from "astro:actions";
+
+    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+    const uploadBtn = document.getElementById('uploadBtn') as HTMLButtonElement;
+    const statusDiv = document.getElementById('status') as HTMLDivElement;
+
+    let selectedFile: File | null = null;
+    fileInput.addEventListener('change', (e: Event) => {
+        const target = e.target as HTMLInputElement;
+        selectedFile = target.files?.[0] || null;
+        uploadBtn.disabled = !selectedFile;
+        statusDiv.textContent = '';
+    });
+
+
+    uploadBtn.addEventListener('click', async () => {
+        if (!selectedFile) return;
+
+        uploadBtn.disabled = true;
+        statusDiv.textContent = 'Uploading...';
+
+        try {
+            const data = await uploadGenericFile(selectedFile);
+
+            statusDiv.innerHTML = `<p style="color:green;">Upload successful!</p><pre>${JSON.stringify(data, null, 2)}</pre>`;
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
+            statusDiv.innerHTML = `<p style="color:red;">${message}</p>`;
+        } finally {
+            uploadBtn.disabled = false;
+        }
+    });
+
+    //######################################
+    //# LOGIC
+    //######################################
+    async function uploadGenericFile(file: File) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('postId', "SAMPLE_ID");
+
+        const { error} = await actions.translator.uploadTranslatedFile(formData);
+        if (error) {
+            throw new Error(error.message || 'Failed to upload image');
+        }
+    }
+
+</script>
