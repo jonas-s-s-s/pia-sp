@@ -52,7 +52,7 @@
     async function uploadGenericFile(file: File) {
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('postId', "SAMPLE_ID");
+        formData.append('projectId', "example-project-id");
 
         const { error} = await actions.translator.uploadTranslatedFile(formData);
         if (error) {

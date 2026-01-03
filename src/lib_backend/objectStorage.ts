@@ -32,7 +32,7 @@ const s3 = new S3Client({
 // UPLOADS
 //////////////////////////////////////////////////
 
-export async function uploadProjectFile(
+export async function projectBucketUploadFile(
     key: string,
     body: Buffer | Uint8Array | Blob | string | ReadableStream,
     contentType = "application/octet-stream"
@@ -47,7 +47,7 @@ export async function uploadProjectFile(
     );
 }
 
-export async function generateProjectUploadUrl(
+export async function projectBucketGenerateUploadUrl(
     key: string,
     contentType: string,
     expiresIn = 900
@@ -65,7 +65,7 @@ export async function generateProjectUploadUrl(
 // PREFIX CLEANUP
 //////////////////////////////////////////////////
 
-export async function deleteProjectPrefix(prefix: string) {
+export async function deleteProjectBucketPrefix(prefix: string) {
     let continuationToken: string | undefined;
 
     do {
@@ -149,7 +149,7 @@ export async function cancelProjectAutoDelete(prefix: string) {
 // DATA ACCESS
 //////////////////////////////////////////////////
 
-export async function generateProjectDownloadUrl(
+export async function projectBucketGenerateDownloadUrl(
     key: string,
     expiresIn = 900 // 15 min
 ): Promise<string> {
@@ -160,15 +160,6 @@ export async function generateProjectDownloadUrl(
 
     return getSignedUrl(s3, command, { expiresIn });
 }
-
-//////////////////////////////////////////////////
-// URL HELPERS
-//////////////////////////////////////////////////
-
-export function getProjectFileUrl(key: string): string {
-    return `${import.meta.env.S3_URL_PUBLIC}/${PROJECT_BUCKET_NAME}/${key}`;
-}
-
 
 //////////////////////////////////////////////////
 // BUCKET MANAGEMENT

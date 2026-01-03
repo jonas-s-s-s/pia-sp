@@ -38,3 +38,16 @@ export async function hasViewMyLanguagesPermission(user: User) {
 
     return result.success;
 }
+
+export async function hasUploadTranslatedFilePermission(user: User) {
+    const result = await auth.api.userHasPermission({
+        body: {
+            userId: user.id,
+            permissions: {
+                upload: ["translated_file"],
+            },
+        },
+    });
+
+    return result.success;
+}

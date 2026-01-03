@@ -10,7 +10,6 @@ export const projectStateEnum = pgEnum("project_state", [
     "CLOSED",
 ]);
 
-
 export const project = pgTable(
     "project",
     {
@@ -26,9 +25,11 @@ export const project = pgTable(
         languageCode: text("language_code").notNull(),
 
         /**
-         * S3 prefix
+         * The file path inside an S3 bucket is called "prefix"
          */
-        storagePrefix: text("storage_prefix").notNull(),
+        originalFilePrefix: text("original_file_prefix"),
+
+        translatedFilePrefix: text("translated_file_prefix"),
 
         state: projectStateEnum("state")
             .default("CREATED")
