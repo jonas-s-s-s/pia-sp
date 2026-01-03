@@ -2,7 +2,7 @@
 import {getLangFromUrl, useTranslations} from '../../../i18n/utils';
 import { languages } from '../../../i18n/ui';
 import StandardPage from "../../../layouts/StandardPage.astro";
-import ProjectsView from "../../../components/translator/ProjectsView.tsx";
+import TranslatorProjectsView from "../../../components/translator/TranslatorProjectsView.tsx";
 const l = getLangFromUrl(Astro.url);
 const t = useTranslations(l);
 
@@ -17,7 +17,7 @@ if (!userData || userData.role !== "Translator") {
 <StandardPage>
     <div class="flex flex-col items-center">
         <h1 class="text-center text-3xl"> Other Projects</h1>
-        <ProjectsView client:load lang={l} projectType="OTHER"></ProjectsView>
+        <TranslatorProjectsView client:load lang={l} projectType="OTHER"></TranslatorProjectsView>
 
     </div>
 

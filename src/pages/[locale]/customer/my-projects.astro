@@ -2,7 +2,6 @@
 import {getLangFromUrl, useTranslations} from '../../../i18n/utils';
 import { languages } from '../../../i18n/ui';
 import StandardPage from "../../../layouts/StandardPage.astro";
-import TranslatorProjectsView from "../../../components/translator/TranslatorProjectsView.tsx";
 
 const l = getLangFromUrl(Astro.url);
 const t = useTranslations(l);
@@ -10,15 +9,15 @@ const t = useTranslations(l);
 const { locale } = Astro.params;
 
 const userData = Astro.locals.user;
-if (!userData || userData.role !== "Translator") {
+if (!userData || userData.role !== "Customer") {
     return Astro.redirect(`/${l}/`);
 }
 ---
 
 <StandardPage>
     <div class="flex flex-col items-center">
-        <h1 class="text-center text-3xl">Assigned Projects</h1>
-        <TranslatorProjectsView client:load lang={l} type="ASSIGNED"></TranslatorProjectsView>
+        <h1 class="text-center text-3xl">My Projects</h1>
+
     </div>
 
 

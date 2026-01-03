@@ -23,7 +23,7 @@ export const Translator = ac.newRole({
     myLanguages: ["update", "view"],
     upload: ["translated_file"],
     project: ["view_assigned_projects"],
-    download: ["translated_file"],
+    download: ["original_file", "translated_file"],
 });
 
 // We also define role names as strings, so we can access them in our other backend code
