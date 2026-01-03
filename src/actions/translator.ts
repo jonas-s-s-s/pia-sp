@@ -25,6 +25,8 @@ import {
     projectBucketGenerateDownloadUrl,
     projectBucketUploadFile
 } from "../lib_backend/objectStorage.ts";
+import {sendProjectCompletedNotification} from "../lib_backend/email.ts";
+import {getUserById} from "../db/data_access/user.ts";
 
 export const translator = {
     addMyLanguages: defineAction({
@@ -182,6 +184,13 @@ export const translator = {
             // 8) Change project state
             //#############################################################################
             await changeProjectState(projectId, "COMPLETED");
+
+            // 9) Notify customer that the project is completed
+            //#############################################################################
+            const customer = await getUserById(project.customerId);
+            if (customer) {
+                await sendProjectCompletedNotification(customer.email, projectId);
+            }
         }
     }),
 

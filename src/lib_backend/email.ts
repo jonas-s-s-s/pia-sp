@@ -9,26 +9,12 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-export async function sendFeedbackEmail(to: string, message: string) {
+export async function sendProjectCompletedNotification(to: string, id: string) {
     return await transporter.sendMail({
         from: import.meta.env.EMAIL_FROM,
         to: to,
-        subject: "User has sent you feedback",
-        text: "test", // plain‑text body
-        html: "test_body", // HTML body
+        subject: "You project has been completed",
+        text: `Your project (ID: ${id}) has been completed`,
+        html: `<h1>Your project (ID: ${id}) has been completed</h1>`,
     });
 }
-
-//**********************************************************
-//* HTML AND TEXT FOR ALL EMAILS
-//**********************************************************
-
-const verificationHtml = (verifyUrl: string) => `
-<!DOCTYPE html>
-<html>
-  <body style="font-family: Arial, sans-serif; line-height: 1.5; color: #333;">
-    <h2>Email Verification</h2>
-  </body>
-</html>
-`.trim();
-

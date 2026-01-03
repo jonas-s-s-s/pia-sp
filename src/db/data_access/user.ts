@@ -31,3 +31,12 @@ export async function setUserRoleById(userId: string, newRole: string) {
 
     return result[0];
 }
+
+export async function getUserById(userId: string) {
+    const result = await db
+        .select()
+        .from(user)
+        .where(eq(user.id, userId));
+
+    return result[0];
+}
