@@ -4,7 +4,6 @@ import {languages} from '../../i18n/ui';
 import {Icon} from 'astro-icon/components'
 import StandardPage from "../../layouts/StandardPage.astro";
 import LinkTile from "../../components/LinkTile.astro"
-import {sendFeedbackEmail} from "../../lib_backend/email.ts";
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 
@@ -17,22 +16,39 @@ if (!locale || !(locale in languages)) {
     //console.log(locale, "is not a valid locale");
 }
 
-
-sendFeedbackEmail("asdf@email.com","");
+const userData = Astro.locals.user;
 ---
 
 <StandardPage>
-    <div class="flex flex-col items-center">
-        <h1 class="text-center text-3xl">{t('index.welcome')}</h1>
-        <h1 class="pt-2 text-center text-2xl">{t('index.continue_with_one_of_the_following')}</h1>
+    <h1 class="text-center text-3xl">{t('index.welcome')}</h1>
+    <h1 class="pt-2 text-center text-2xl">{t('index.continue_with_one_of_the_following')}</h1>
 
-        <div class="flex flex-row gap-3 justify-center mt-10">
-            <LinkTile href={`/${lang}/sign-in`} title={t('index.sign_in')}>
-                <Icon slot="icon" width="50" height="50" name="mdi:account-key"/>
-            </LinkTile>
-            <LinkTile href={`/${lang}/sign-up`} title={t('index.sign_up')}>
-                <Icon slot="icon" width="50" height="50" name="mdi:register"/>
-            </LinkTile>
-        </div>
+    <div class="flex flex-row gap-3 justify-center mt-10">
+
+
+        {/* 1) NOT SIGNED IN */}
+        {!userData && (
+                <LinkTile href={`/${lang}/sign-in`} title={t('index.sign_in')}>
+                    <Icon slot="icon" width="50" height="50" name="mdi:account-key"/>
+                </LinkTile>
+
+                <LinkTile href={`/${lang}/sign-up`} title={t('index.sign_up')}>
+                    <Icon slot="icon" width="50" height="50" name="mdi:register"/>
+                </LinkTile>
+        )}
+
+        {/* 2) TRANSLATOR */}
+        {userData?.role === "Translator" && (
+                <LinkTile href={`/${lang}/translator/language-settings`} title={t('index.language_settings')}>
+                    <Icon slot="icon" width="50" height="50" name="mdi:language-box"/>
+                </LinkTile>
+        )}
+
+        {/* 3) CUSTOMER */}
+        {userData?.role === "Customer" && (
+                <div>Customer</div>
+        )}
+
     </div>
+
 </StandardPage>

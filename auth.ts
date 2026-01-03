@@ -1,10 +1,11 @@
+import {ac, Customer, Translator} from "./src/lib_backend/user_roles/permissions.ts";
+
 import {betterAuth, type GenericEndpointContext} from "better-auth";
 import {drizzleAdapter} from "better-auth/adapters/drizzle";
 import {db} from "./src/db/orm.ts";
-import {admin} from "better-auth/plugins";
+import {admin as adminPlugin} from "better-auth/plugins";
 import {user, session, account, verification} from "./src/db/schema/auth-schema.ts";
 
-import {ac, Customer, Translator} from "./src/lib_backend/user_roles/permissions.ts";
 
 // TODO: Sending email?
 // import {sendVerificationEmail, sendChangeEmailVerification, sendPasswordResetEmail} from "./email.ts";
@@ -77,7 +78,7 @@ const auth = betterAuth({
         }
     },
     plugins: [
-        admin(
+        adminPlugin(
             {
                 ac,
                 roles: {

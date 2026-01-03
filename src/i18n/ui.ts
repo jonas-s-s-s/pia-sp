@@ -14,6 +14,7 @@ export const ui = {
         'footer.available_in_langs': 'Available in languages:',
         'my-profile.my_profile': "My Profile",
         'role-change.choose_role': 'Role Settings',
+        'index.language_settings': 'Language Settings',
     },
     cz: {
         'index.welcome': 'Vítejte',
@@ -23,5 +24,6 @@ export const ui = {
         'index.sign_up': 'Registrovat se',
         'my-profile.my_profile': "Můj profil",
         'role-change.choose_role': 'Nastavení role',
+        'index.language_settings': 'Nastavení jazyka',
     },
 } as const;
