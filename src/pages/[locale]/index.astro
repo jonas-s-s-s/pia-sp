@@ -64,6 +64,13 @@ const userData = Astro.locals.user;
 
         )}
 
+        {/* 4) ADMINISTRATOR */}
+        {userData?.role === "Administrator" && (
+                <LinkTile href={`/${lang}/admin/project-viewer`} title={t('index.admin_project_viewer')}>
+                    <Icon slot="icon" width="50" height="50" name="mdi:file-document-box-search"/>
+                </LinkTile>
+        )}
+
     </div>
 
 </StandardPage>

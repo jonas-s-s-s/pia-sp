@@ -6,6 +6,7 @@ export const statement = {
     upload: ["translated_file", "original_file"],
     project: ["view_assigned_projects", "create", "view_my_projects", "delete", "add_feedback"],
     download: ["translated_file", "original_file"],
+    adminPermissions: ["view_projects", "react_to_feedback", "mark_project_as_closed"],
 } as const;
 
 export const ac = createAccessControl(statement);
@@ -26,6 +27,9 @@ export const Translator = ac.newRole({
     download: ["original_file", "translated_file"],
 });
 
-// We also define role names as strings, so we can access them in our other backend code
-export const roleNames = ["Customer", "Translator"];
+export const Administrator = ac.newRole({
+    adminPermissions: ["view_projects", "react_to_feedback", "mark_project_as_closed"],
+});
+
+export const userRoles = ["Customer", "Translator"];
 

@@ -1,0 +1,23 @@
+---
+import {getLangFromUrl, useTranslations} from '../../../i18n/utils';
+import { languages } from '../../../i18n/ui';
+import StandardPage from "../../../layouts/StandardPage.astro";
+
+const l = getLangFromUrl(Astro.url);
+const t = useTranslations(l);
+
+const { locale } = Astro.params;
+const userData = Astro.locals.user;
+if (!userData || userData.role !== "Administrator") {
+    return Astro.redirect(`/${l}/`);
+}
+---
+
+<StandardPage>
+    <div class="flex flex-col items-center">
+        <h1 class="text-center text-3xl">Admin Project Viewer</h1>
+
+    </div>
+
+
+</StandardPage>

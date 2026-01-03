@@ -20,7 +20,7 @@ export const ui = {
         'index.new_project': 'New Project',
         'index.my_projects': 'My Projects',
         'index.review_projects': 'Review Projects',
-
+        'index.admin_project_viewer': 'Admin Project Viewer',
     },
     cz: {
         'index.welcome': 'Vítejte',
@@ -36,6 +36,6 @@ export const ui = {
         'index.new_project': 'Nový projekt',
         'index.my_projects': 'Moje projekty',
         'index.review_projects': 'Hodnotit projekty',
-
+        'index.admin_project_viewer': 'Administrace Projektů',
     },
 } as const;
