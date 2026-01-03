@@ -6,13 +6,20 @@ import {isUserLoggedIn} from "./actionUtils/userAuth.ts";
 import {isIso6391} from "../lib_frontend/iso-639-1.ts";
 
 import {
-    hasCreateProjectPermission, hasUploadOriginalFilePermission, hasViewMyProjectsPermission,
+    hasCreateProjectPermission,
+    hasDeleteProjectsPermission,
+    hasUploadOriginalFilePermission,
+    hasViewMyProjectsPermission,
 } from "../lib_backend/user_roles/userRoleManager.ts";
 
 import {
-    createProject, getProjectsByCustomerId, setOriginalFilePrefix,
+    createProject,
+    deleteProjectById,
+    getProjectById,
+    getProjectsByCustomerId,
+    setOriginalFilePrefix,
 } from "../db/data_access/project.ts";
-import {projectBucketUploadFile} from "../lib_backend/objectStorage.ts";
+import {deleteProjectBucketPrefix, projectBucketUploadFile} from "../lib_backend/objectStorage.ts";
 
 export const customer = {
     createProject: defineAction({
@@ -120,11 +127,77 @@ export const customer = {
             }
 
             try {
-                const projects = await getProjectsByCustomerId(user.id);
-                return projects;
+                return await getProjectsByCustomerId(user.id);
             } catch (e) {
-                throw new Error("Unable to fetch projects");
+                throw new ActionError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Unable to fetch projects",
+                });
             }
         }
     }),
+
+    deleteMyProject: defineAction({
+        input: z.object({
+            projectId: z.string(),
+        }),
+        handler: async (input, context) => {
+            const user: User = isUserLoggedIn(context);
+
+            // 1) Verify delete permission
+            //#############################################################################
+            if (!await hasDeleteProjectsPermission(user)) {
+                throw new ActionError({code: "UNAUTHORIZED"});
+            }
+
+            // 2) Verify project exists and belongs to this customer
+            //#############################################################################
+            const data = await getProjectById(input.projectId);
+            const project = data?.project;
+
+            if (!project) {
+                throw new ActionError({
+                    code: "NOT_FOUND",
+                    message: "Project not found",
+                });
+            }
+
+            if (project.customerId !== user.id) {
+                throw new ActionError({
+                    code: "FORBIDDEN",
+                    message: "You don't own this project",
+                });
+            }
+
+            // 3) Delete files from bucket
+            //#############################################################################
+            try {
+                if (project.originalFilePrefix) {
+                    await deleteProjectBucketPrefix(project.originalFilePrefix);
+                }
+
+                if (project.translatedFilePrefix) {
+                    await deleteProjectBucketPrefix(project.translatedFilePrefix);
+                }
+            } catch (e) {
+                throw new ActionError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Unable to delete files in project bucket",
+                });
+            }
+
+            // 4) Delete project record from DB
+            //#############################################################################
+            try {
+                await deleteProjectById(project.id, user.id);
+            } catch (e) {
+                throw new ActionError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Unable to delete project from DB",
+                });
+            }
+        },
+    }),
+
+
 };

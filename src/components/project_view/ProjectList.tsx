@@ -7,13 +7,14 @@ type ProjectListProps = {
     lang: string;
     setError: React.Dispatch<React.SetStateAction<string | null>>;
     ProjectActions?: React.ComponentType<ProjectActionsProps>;
+    deleteProjectItem: (projectId: string) => void;
 };
 
 /**
  * A list consisting of cards with info about each project
  * Pass project action with project related buttons or other controls
  */
-export function ProjectList({ items, lang, setError, ProjectActions }: ProjectListProps) {
+export function ProjectList({ items, lang, setError, ProjectActions, deleteProjectItem }: ProjectListProps) {
     return (
         <ul className="list-none space-y-4">
             {items.map((item) => (
@@ -23,6 +24,7 @@ export function ProjectList({ items, lang, setError, ProjectActions }: ProjectLi
                     lang={lang}
                     setError={setError}
                     ProjectActions={ProjectActions}
+                    deleteProjectItem={deleteProjectItem}
                 />
             ))}
         </ul>

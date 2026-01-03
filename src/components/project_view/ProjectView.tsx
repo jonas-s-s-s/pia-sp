@@ -23,6 +23,12 @@ export function ProjectView({lang, title = "Projects", fetchProjects, ProjectAct
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const deleteProjectItem = (projectId: string) => {
+        setItems(prev =>
+            prev.filter(item => item.projectId !== projectId)
+        );
+    };
+    
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
@@ -48,7 +54,7 @@ export function ProjectView({lang, title = "Projects", fetchProjects, ProjectAct
             {items.length === 0 ? (
                 <p>No projects found.</p>
             ) : (
-                <ProjectList items={items} lang={lang} setError={setError} ProjectActions={ProjectActions}/>
+                <ProjectList deleteProjectItem={deleteProjectItem} items={items} lang={lang} setError={setError} ProjectActions={ProjectActions}/>
             )}
             {error && <div className="text-center mt-5 text-red-500">{error}</div>}
         </div>

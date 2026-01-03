@@ -20,4 +20,5 @@ export type ProjectActionsProps = {
     item: ProjectItem;
     lang: string;
     setError: React.Dispatch<React.SetStateAction<string | null>>;
+    deleteProjectItem: (projectId: string) => void;
 };

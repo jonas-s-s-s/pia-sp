@@ -220,3 +220,26 @@ export async function getProjectsByCustomerId(customerId: string) {
 
     return results;
 }
+
+export async function deleteProjectById(
+    projectId: string,
+    customerId?: string,
+) {
+    const whereClause = customerId
+        ? and(
+            eq(project.id, projectId),
+            eq(project.customerId, customerId),
+        )
+        : eq(project.id, projectId);
+
+    const result = await db
+        .delete(project)
+        .where(whereClause)
+        .returning({id: project.id});
+
+    if (!result[0]) {
+        throw new Error("Project not found or not owned by customer.");
+    }
+
+    return result[0];
+}

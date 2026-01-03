@@ -28,7 +28,7 @@ export default function TranslatorProjectsView({lang, projectType}: ProjectsView
 }
 
 
-export const TranslatorProjectActions: React.FC<ProjectActionsProps> = ({item, lang, setError}) => {
+export const TranslatorProjectActions: React.FC<ProjectActionsProps> = ({item, lang, setError, deleteProjectItem}) => {
     const handleDownload = async (type: "original" | "translated") => {
         const {error, data} = await actions.translator.downloadFile({projectId: item.projectId, type});
         if (error) {

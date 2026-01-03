@@ -6,6 +6,7 @@ type ProjectItemCardProps = {
     lang: string;
     setError: React.Dispatch<React.SetStateAction<string | null>>;
     ProjectActions?: React.ComponentType<ProjectActionsProps>;
+    deleteProjectItem: (projectId: string) => void;
 };
 
 /**
@@ -13,7 +14,7 @@ type ProjectItemCardProps = {
  * have "ProjectAction" attached to it, which can be used to, for example, display buttons or
  * any other controls
  */
-export function ProjectItemCard({item, lang, setError, ProjectActions}: ProjectItemCardProps) {
+export function ProjectItemCard({item, lang, setError, ProjectActions, deleteProjectItem}: ProjectItemCardProps) {
     return (
         <li className="bg-sky-100 p-3 rounded-lg shadow-sm">
             <p><strong>Project ID:</strong> {item.projectId}</p>
@@ -31,7 +32,7 @@ export function ProjectItemCard({item, lang, setError, ProjectActions}: ProjectI
                 <p className="bg-amber-200"><strong>Feedback Date:</strong> {item.feedbackCreatedAt.toLocaleString()}
                 </p>}
 
-            {ProjectActions && <ProjectActions item={item} lang={lang} setError={setError}/>}
+            {ProjectActions && <ProjectActions deleteProjectItem={deleteProjectItem} item={item} lang={lang} setError={setError}/>}
         </li>
     );
 }
