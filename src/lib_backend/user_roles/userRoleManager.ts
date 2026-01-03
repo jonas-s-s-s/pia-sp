@@ -64,3 +64,16 @@ export async function hasViewAssignedProjectsPermission(user: User) {
 
     return result.success;
 }
+
+export async function hasDownloadTranslatedFilePermission(user: User) {
+    const result = await auth.api.userHasPermission({
+        body: {
+            userId: user.id,
+            permissions: {
+                download: ["translated_file"],
+            },
+        },
+    });
+
+    return result.success;
+}

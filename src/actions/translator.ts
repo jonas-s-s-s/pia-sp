@@ -3,6 +3,7 @@ import {z} from "astro:schema";
 import {isUserLoggedIn} from "./actionUtils/userAuth.ts";
 import type {User} from "../../auth.ts";
 import {
+    hasDownloadTranslatedFilePermission,
     hasUpdateMyLanguagesPermission, hasUploadTranslatedFilePermission, hasViewAssignedProjectsPermission,
     hasViewMyLanguagesPermission
 } from "../lib_backend/user_roles/userRoleManager.ts";
@@ -18,7 +19,11 @@ import {
     getProjectsByTranslatorId,
     setTranslatedFilePrefix
 } from "../db/data_access/project.ts";
-import {deleteProjectBucketPrefix, projectBucketUploadFile} from "../lib_backend/objectStorage.ts";
+import {
+    deleteProjectBucketPrefix,
+    projectBucketGenerateDownloadUrl,
+    projectBucketUploadFile
+} from "../lib_backend/objectStorage.ts";
 
 export const translator = {
     addMyLanguages: defineAction({
@@ -170,6 +175,64 @@ export const translator = {
 
             try {
                 return await getProjectsByTranslatorId(user.id);
+            } catch (e) {
+                throw new ActionError({code: "INTERNAL_SERVER_ERROR"});
+            }
+        },
+    }),
+
+    downloadFile: defineAction({
+        input: z.object({
+            projectId: z.string(),
+            type: z.enum(["original", "translated"]),
+        }),
+        handler: async (input, context) => {
+            const user: User = isUserLoggedIn(context);
+
+            if (!await hasDownloadTranslatedFilePermission(user)) {
+                throw new ActionError({code: "UNAUTHORIZED"});
+            }
+
+            // 1) Verify that project exists, and that user is assigned to it as a translator or customer
+            //#############################################################################
+            const project = await getProjectById(input.projectId);
+
+            if (!project) {
+                throw new ActionError({code: "NOT_FOUND", message: "Project not found"});
+            }
+
+            if (project.translatorId !== user.id || project.customerId !== user.id) {
+                throw new ActionError({
+                    code: "FORBIDDEN",
+                    message: "You aren't assigned to this project"
+                });
+            }
+
+            // 2) Check if the file prefix exists
+            //#############################################################################
+
+            if (input.type == "translated" && !project.translatedFilePrefix) {
+                throw new ActionError({
+                    code: "NOT_FOUND",
+                    message: "Translated file doesn't exist"
+                });
+            }
+
+            if (input.type == "original" && !project.originalFilePrefix) {
+                throw new ActionError({
+                    code: "NOT_FOUND",
+                    message: "Original file doesn't exist"
+                });
+            }
+
+            // 3) Return the download link
+            //#############################################################################
+
+            try {
+                if (input.type == "original")
+                    return await projectBucketGenerateDownloadUrl(project.originalFilePrefix!);
+                else
+                    return await projectBucketGenerateDownloadUrl(project.translatedFilePrefix!);
             } catch (e) {
                 throw new ActionError({code: "INTERNAL_SERVER_ERROR"});
             }

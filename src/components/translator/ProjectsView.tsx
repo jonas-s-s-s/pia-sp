@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { actions } from "astro:actions";
+import React, {useEffect, useState} from "react";
+import {actions} from "astro:actions";
 
 type ProjectsViewProps = {
     lang: string;
@@ -21,17 +21,22 @@ export default function ProjectsView(props: ProjectsViewProps) {
     const [loading, setLoading] = useState(true);
     const [items, setItems] = useState<projectItem[]>([]);
 
-    // Placeholder button handlers
-    const handleDownloadOriginal = (projectId: string) => {
-        console.log("Download original file for project:", projectId);
+    const handleDownloadOriginal = async (projectId: string) => {
+        const {error, data} = await actions.translator.downloadFile({projectId: projectId, type: "original"});
+        if (error) {
+            setError(error.message || "Error " + error.code);
+            return;
+        }
+        window.open(data, '_blank');
     };
 
-    const handleDownloadTranslated = (projectId: string) => {
-        console.log("Download translated file for project:", projectId);
-    };
-
-    const handleUploadTranslated = (projectId: string) => {
-        console.log("Upload translated file for project:", projectId);
+    const handleDownloadTranslated = async (projectId: string) => {
+        const {error, data} = await actions.translator.downloadFile({projectId: projectId, type: "translated"});
+        if (error) {
+            setError(error.message || "Error " + error.code);
+            return;
+        }
+        window.open(data, '_blank');
     };
 
     // Fetch the array of translator's projects on component mount
@@ -39,7 +44,7 @@ export default function ProjectsView(props: ProjectsViewProps) {
         const fetchProjects = async () => {
             setLoading(true);
 
-            const { error, data } = await actions.translator.getMyAssignedProjects({});
+            const {error, data} = await actions.translator.getMyAssignedProjects({});
             if (error) {
                 setError(error.message || "Error " + error.code);
             } else if (data) {
@@ -54,8 +59,10 @@ export default function ProjectsView(props: ProjectsViewProps) {
 
     if (loading) {
         return (
-            <div className="flex justify-center max-w-sm mx-auto mt-10 p-6 rounded-lg border border-zinc-200 bg-white shadow-sm min-w-1/3">
-                <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <div
+                className="flex justify-center max-w-sm mx-auto mt-10 p-6 rounded-lg border border-zinc-200 bg-white shadow-sm min-w-1/3">
+                <div
+                    className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
@@ -110,7 +117,7 @@ export default function ProjectsView(props: ProjectsViewProps) {
             </div>
 
             {error && (
-                <div className="text-center mt-5 text-red-500">Error: {error}</div>
+                <div className="text-center mt-5 text-red-500">{error}</div>
             )}
         </div>
     );
