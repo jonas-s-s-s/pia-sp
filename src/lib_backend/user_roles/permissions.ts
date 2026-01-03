@@ -1,11 +1,9 @@
-import { createAccessControl } from "better-auth/plugins/access";
-import { defaultStatements } from "better-auth/plugins/admin/access";
+import {createAccessControl} from "better-auth/plugins/access";
 
 // Below we can specify permission types
 export const statement = {
-    ...defaultStatements,
-    customerData: ["view", "update"], // example resource
-    translations: ["create", "update", "delete", "approve"], // example resource
+    customerData: ["view"], // example resource
+    myLanguages: ["update", "view"],
 } as const;
 
 export const ac = createAccessControl(statement);
@@ -18,8 +16,9 @@ export const Customer = ac.newRole({
 });
 
 export const Translator = ac.newRole({
-    translations: ["create", "update"],
+    myLanguages: ["update", "view"],
 });
 
 // We also define role names as strings, so we can access them in our other backend code
 export const roleNames = ["Customer", "Translator"];
+

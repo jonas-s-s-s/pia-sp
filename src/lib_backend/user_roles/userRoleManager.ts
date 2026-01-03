@@ -8,3 +8,33 @@ export async function setUserRole(user: User, role: string) {
 
     await setUserRoleById(user.id, role)
 }
+
+//##################################
+//# PERMISSION CHECKS
+//##################################
+
+export async function hasUpdateMyLanguagesPermission(user: User) {
+    const result = await auth.api.userHasPermission({
+        body: {
+            userId: user.id,
+            permissions: {
+                myLanguages: ["update"],
+            },
+        },
+    });
+
+    return result.success;
+}
+
+export async function hasViewMyLanguagesPermission(user: User) {
+    const result = await auth.api.userHasPermission({
+        body: {
+            userId: user.id,
+            permissions: {
+                myLanguages: ["view"],
+            },
+        },
+    });
+
+    return result.success;
+}
