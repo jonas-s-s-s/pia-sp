@@ -1,6 +1,7 @@
 import {db} from "../orm";
 import {eq} from "drizzle-orm";
 import {project, projectStateEnum} from "../schema/project-schema";
+import {user} from "../schema/auth-schema.ts";
 
 export async function getProjectById(projectId: string) {
     const result = await db
@@ -61,4 +62,26 @@ export async function changeProjectState(projectId: string, newState: ProjectSta
     if (!result[0])
         throw new Error("Project not found or state not updated.");
     return result[0];
+}
+
+
+export async function getProjectsByTranslatorId(translatorId: string) {
+    // TODO: In a real project this would use some kind of pagination
+
+    const results = await db
+        .select({
+            projectId: project.id,
+            languageCode: project.languageCode,
+            originalFilePrefix: project.originalFilePrefix,
+            translatedFilePrefix: project.translatedFilePrefix,
+            state: project.state,
+            createdAt: project.createdAt,
+            customerId: user.id,
+            customerName: user.name,
+        })
+        .from(project)
+        .leftJoin(user, eq(project.customerId, user.id))
+        .where(eq(project.translatorId, translatorId));
+
+    return results;
 }

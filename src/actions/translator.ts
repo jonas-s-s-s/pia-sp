@@ -3,7 +3,7 @@ import {z} from "astro:schema";
 import {isUserLoggedIn} from "./actionUtils/userAuth.ts";
 import type {User} from "../../auth.ts";
 import {
-    hasUpdateMyLanguagesPermission, hasUploadTranslatedFilePermission,
+    hasUpdateMyLanguagesPermission, hasUploadTranslatedFilePermission, hasViewAssignedProjectsPermission,
     hasViewMyLanguagesPermission
 } from "../lib_backend/user_roles/userRoleManager.ts";
 import {
@@ -12,8 +12,13 @@ import {
     removeTranslatorLanguages
 } from "../db/data_access/translator.ts";
 import {isIso6391} from "../lib_frontend/iso-639-1.ts";
-import {changeProjectState, getProjectById, setTranslatedFilePrefix} from "../db/data_access/project.ts";
-import {projectBucketUploadFile} from "../lib_backend/objectStorage.ts";
+import {
+    changeProjectState,
+    getProjectById,
+    getProjectsByTranslatorId,
+    setTranslatedFilePrefix
+} from "../db/data_access/project.ts";
+import {deleteProjectBucketPrefix, projectBucketUploadFile} from "../lib_backend/objectStorage.ts";
 
 export const translator = {
     addMyLanguages: defineAction({
@@ -99,7 +104,10 @@ export const translator = {
             // 1) Verify that user has permission to upload translated files
             //#############################################################################
             if (!await hasUploadTranslatedFilePermission(user)) {
-                throw new ActionError({code: "UNAUTHORIZED", message: "You don't have permission to upload translated files"});
+                throw new ActionError({
+                    code: "UNAUTHORIZED",
+                    message: "You don't have permission to upload translated files"
+                });
             }
 
             // 2) Verify that project exists, and that user is assigned to it as translator
@@ -111,10 +119,26 @@ export const translator = {
             }
 
             if (project.translatorId !== user.id) {
-                throw new ActionError({code: "FORBIDDEN", message: "You aren't assigned to this project as translator"});
+                throw new ActionError({
+                    code: "FORBIDDEN",
+                    message: "You aren't assigned to this project as translator"
+                });
             }
 
-            // 3) Upload file to bucket
+            // 4) Delete the current file if it exists
+            //#############################################################################
+            if (project.translatedFilePrefix) {
+                try {
+                    await deleteProjectBucketPrefix(project.translatedFilePrefix);
+                } catch (e) {
+                    throw new ActionError({
+                        code: "INTERNAL_SERVER_ERROR",
+                        message: "Unable delete current file from bucket."
+                    });
+                }
+            }
+
+            // 5) Upload file to bucket
             //#############################################################################
             const prefix = `${projectId}/${file.name}`;
             const buffer = Buffer.from(await file.arrayBuffer());
@@ -125,14 +149,31 @@ export const translator = {
                 throw new ActionError({code: "INTERNAL_SERVER_ERROR", message: "Unable to upload file to bucket."});
             }
 
-            // 4) The translated file prefix should now point to this file
+            // 6) The translated file prefix should now point to this file
             //#############################################################################
             await setTranslatedFilePrefix(projectId, prefix);
 
-            // 5) Change project state
+            // 7) Change project state
             //#############################################################################
             await changeProjectState(projectId, "COMPLETED");
         }
-    })
+    }),
+
+    getMyAssignedProjects: defineAction({
+        input: z.object({}),
+        handler: async (input, context) => {
+            const user: User = isUserLoggedIn(context);
+
+            if (!await hasViewAssignedProjectsPermission(user)) {
+                throw new ActionError({code: "UNAUTHORIZED"});
+            }
+
+            try {
+                return await getProjectsByTranslatorId(user.id);
+            } catch (e) {
+                throw new ActionError({code: "INTERNAL_SERVER_ERROR"});
+            }
+        },
+    }),
 
 };

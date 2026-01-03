@@ -5,6 +5,7 @@ export const statement = {
     customerData: ["view"], // example resource
     myLanguages: ["update", "view"],
     upload: ["translated_file"],
+    project: ["view_assigned_projects"]
 } as const;
 
 export const ac = createAccessControl(statement);
@@ -19,6 +20,8 @@ export const Customer = ac.newRole({
 export const Translator = ac.newRole({
     myLanguages: ["update", "view"],
     upload: ["translated_file"],
+    project: ["view_assigned_projects"],
+
 });
 
 // We also define role names as strings, so we can access them in our other backend code

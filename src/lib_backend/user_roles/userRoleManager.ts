@@ -51,3 +51,16 @@ export async function hasUploadTranslatedFilePermission(user: User) {
 
     return result.success;
 }
+
+export async function hasViewAssignedProjectsPermission(user: User) {
+    const result = await auth.api.userHasPermission({
+        body: {
+            userId: user.id,
+            permissions: {
+                project: ["view_assigned_projects"],
+            },
+        },
+    });
+
+    return result.success;
+}
