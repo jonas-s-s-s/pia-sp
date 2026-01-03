@@ -19,6 +19,7 @@ export const ui = {
         'index.other_projects': 'Other Projects',
         'index.new_project': 'New Project',
         'index.my_projects': 'My Projects',
+        'index.review_projects': 'Review Projects',
 
     },
     cz: {
@@ -32,8 +33,9 @@ export const ui = {
         'index.language_settings': 'Nastavení jazyka',
         'index.assigned_projects': 'Přiřazené projekty',
         'index.other_projects': 'Ostatní projekty',
-        'index.new_project': 'Nový Project',
-        'index.my_projects': 'Moje Projekty',
+        'index.new_project': 'Nový projekt',
+        'index.my_projects': 'Moje projekty',
+        'index.review_projects': 'Hodnotit projekty',
 
     },
 } as const;

@@ -143,3 +143,16 @@ export async function hasDeleteProjectsPermission(user: User) {
 
     return result.success;
 }
+
+export async function hasAddProjectFeedbackPermission(user: User) {
+    const result = await auth.api.userHasPermission({
+        body: {
+            userId: user.id,
+            permissions: {
+                project: ["add_feedback"],
+            },
+        },
+    });
+
+    return result.success;
+}

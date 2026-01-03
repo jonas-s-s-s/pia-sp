@@ -6,6 +6,7 @@ import {isUserLoggedIn} from "./actionUtils/userAuth.ts";
 import {isIso6391} from "../lib_frontend/iso-639-1.ts";
 
 import {
+    hasAddProjectFeedbackPermission,
     hasCreateProjectPermission,
     hasDeleteProjectsPermission,
     hasUploadOriginalFilePermission,
@@ -16,8 +17,8 @@ import {
     createProject,
     deleteProjectById,
     getProjectById,
-    getProjectsByCustomerId,
-    setOriginalFilePrefix,
+    getProjectsByCustomerId, getProjectsByCustomerIdAndState,
+    setOriginalFilePrefix, setProjectFeedback,
 } from "../db/data_access/project.ts";
 import {deleteProjectBucketPrefix, projectBucketUploadFile} from "../lib_backend/objectStorage.ts";
 
@@ -199,5 +200,82 @@ export const customer = {
         },
     }),
 
+    getMyCompletedProjects: defineAction({
+        input: z.object({}),
+        handler: async (_, context) => {
+            const user: User = isUserLoggedIn(context);
+
+            if (!await hasViewMyProjectsPermission(user)) {
+                throw new ActionError({
+                    code: "UNAUTHORIZED",
+                    message: "You don't have permission to view projects",
+                });
+            }
+
+            try {
+                return await getProjectsByCustomerIdAndState(user.id, "COMPLETED");
+            } catch (e) {
+                throw new ActionError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Unable to fetch assigned projects",
+                });
+            }
+        },
+    }),
+
+    setProjectFeedback: defineAction({
+        input: z.object({
+            projectId: z.string(),
+            text: z.string().min(1),
+        }),
+        handler: async (input, context) => {
+            const user: User = isUserLoggedIn(context);
+
+            if (!await hasAddProjectFeedbackPermission(user)) {
+                throw new ActionError({code: "UNAUTHORIZED"});
+            }
+
+            // 1) Load project
+            //#############################################################################
+            const data = await getProjectById(input.projectId);
+            const project = data?.project;
+
+            if (!project) {
+                throw new ActionError({
+                    code: "NOT_FOUND",
+                    message: "Project not found",
+                });
+            }
+
+            // 2) Check if user owns this project
+            //#############################################################################
+            if (project.customerId !== user.id) {
+                throw new ActionError({
+                    code: "FORBIDDEN",
+                    message: "You don't own this project",
+                });
+            }
+
+            // 3) State check
+            //#############################################################################
+            if (project.state !== "COMPLETED") {
+                throw new ActionError({
+                    code: "BAD_REQUEST",
+                    message: "Feedback can only be set for COMPLETED projects",
+                });
+            }
+
+            // 4) Save user feedback
+            //#############################################################################
+            try {
+                return await setProjectFeedback(input.projectId, input.text);
+            } catch (e) {
+                throw new ActionError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Unable to save feedback",
+                });
+            }
+        },
+    }),
 
 };

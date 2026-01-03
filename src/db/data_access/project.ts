@@ -243,3 +243,71 @@ export async function deleteProjectById(
 
     return result[0];
 }
+
+export async function getProjectsByCustomerIdAndState(
+    customerId: string,
+    state: ProjectState,
+) {
+    const translator = alias(user, "translator");
+
+    const results = await db
+        .select({
+            projectId: project.id,
+            languageCode: project.languageCode,
+            originalFilePrefix: project.originalFilePrefix,
+            translatedFilePrefix: project.translatedFilePrefix,
+            state: project.state,
+            createdAt: project.createdAt,
+
+            customerId: project.customerId,
+            customerName: user.name,
+
+            translatorId: project.translatorId,
+            translatorName: translator.name,
+
+            feedbackText: feedback.text,
+            feedbackCreatedAt: feedback.createdAt,
+        })
+        .from(project)
+        .leftJoin(user, eq(project.customerId, user.id))
+        .leftJoin(translator, eq(project.translatorId, translator.id))
+        .leftJoin(feedback, eq(feedback.projectId, project.id))
+        .where(
+            and(
+                eq(project.customerId, customerId),
+                eq(project.state, state),
+            ),
+        );
+
+    return results;
+}
+
+export async function setProjectFeedback(
+    projectId: string,
+    text: string,
+) {
+    const result = await db
+        .insert(feedback)
+        .values({
+            projectId,
+            text,
+        })
+        .onConflictDoUpdate({
+            target: feedback.projectId,
+            set: {
+                text,
+                createdAt: new Date(),
+            },
+        })
+        .returning({
+            projectId: feedback.projectId,
+            text: feedback.text,
+            createdAt: feedback.createdAt,
+        });
+
+    if (!result[0]) {
+        throw new Error("Unable to set feedback.");
+    }
+
+    return result[0];
+}
