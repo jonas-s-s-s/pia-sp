@@ -50,6 +50,24 @@ export const CompletedProjectActions: React.FC<ProjectActionsProps> = ({item, la
         }
     }
 
+    async function handleApprove(projectId: string) {
+        const {error, data} = await actions.customer.approveProject({projectId});
+        if (error) {
+            setError(error.message || "Error " + error.code);
+        } else {
+            window.location.reload();
+        }
+    }
+
+    async function handleReject(projectId: string) {
+        const {error, data} = await actions.customer.rejectProject({projectId});
+        if (error) {
+            setError(error.message || "Error " + error.code);
+        } else {
+            window.location.reload();
+        }
+    }
+
     return (
         <div className="mt-3 flex gap-2 flex-col">
             <button
@@ -80,7 +98,19 @@ export const CompletedProjectActions: React.FC<ProjectActionsProps> = ({item, la
                 Add Feedback
             </button>
 
+            <button
+                onClick={() => handleApprove(item.projectId)}
+                className="mt-2 border bg-green-100 hover:bg-green-200 active:bg-green-300 px-3 py-1 rounded-lg"
+            >
+                Approve
+            </button>
 
+            <button
+                onClick={() => handleReject(item.projectId)}
+                className="border bg-red-100 hover:bg-red-200 active:bg-red-300 px-3 py-1 rounded-lg"
+            >
+                Reject
+            </button>
         </div>
     );
 };

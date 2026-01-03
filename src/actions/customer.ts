@@ -14,6 +14,7 @@ import {
 } from "../lib_backend/user_roles/userRoleManager.ts";
 
 import {
+    changeProjectState,
     createProject,
     deleteProjectById,
     getProjectById,
@@ -273,6 +274,114 @@ export const customer = {
                 throw new ActionError({
                     code: "INTERNAL_SERVER_ERROR",
                     message: "Unable to save feedback",
+                });
+            }
+        },
+    }),
+
+    approveProject: defineAction({
+        input: z.object({
+            projectId: z.string(),
+        }),
+        handler: async (input, context) => {
+            const user: User = isUserLoggedIn(context);
+
+            if (!await hasViewMyProjectsPermission(user)) {
+                throw new ActionError({ code: "UNAUTHORIZED" });
+            }
+
+            // 1) Load project
+            //#############################################################################
+            const data = await getProjectById(input.projectId);
+            const project = data?.project;
+
+            if (!project) {
+                throw new ActionError({
+                    code: "NOT_FOUND",
+                    message: "Project not found",
+                });
+            }
+
+            // 2) Check if user owns this project
+            //#############################################################################
+            if (project.customerId !== user.id) {
+                throw new ActionError({
+                    code: "FORBIDDEN",
+                    message: "You don't own this project",
+                });
+            }
+
+            // 3) State validation
+            //#############################################################################
+            if (project.state !== "COMPLETED") {
+                throw new ActionError({
+                    code: "BAD_REQUEST",
+                    message: "Only COMPLETED projects can be approved",
+                });
+            }
+
+            // 4) Approve project
+            //#############################################################################
+            try {
+                return await changeProjectState(project.id, "APPROVED");
+            } catch {
+                throw new ActionError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Unable to approve project",
+                });
+            }
+        },
+    }),
+
+    rejectProject: defineAction({
+        input: z.object({
+            projectId: z.string(),
+        }),
+        handler: async (input, context) => {
+            const user: User = isUserLoggedIn(context);
+
+            if (!await hasViewMyProjectsPermission(user)) {
+                throw new ActionError({ code: "UNAUTHORIZED" });
+            }
+
+            // 1) Load project
+            //#############################################################################
+            const data = await getProjectById(input.projectId);
+            const project = data?.project;
+
+            if (!project) {
+                throw new ActionError({
+                    code: "NOT_FOUND",
+                    message: "Project not found",
+                });
+            }
+
+            // 2) Check if user owns this project
+            //#############################################################################
+            if (project.customerId !== user.id) {
+                throw new ActionError({
+                    code: "FORBIDDEN",
+                    message: "You don't own this project",
+                });
+            }
+
+            // 3) State validation
+            //#############################################################################
+            if (project.state !== "COMPLETED") {
+                throw new ActionError({
+                    code: "BAD_REQUEST",
+                    message: "Only COMPLETED projects can be rejected",
+                });
+            }
+
+            // 4) Reject moves it back to "ASSIGNED"
+            //#############################################################################
+            try {
+                return await changeProjectState(project.id, "ASSIGNED");
+            } catch {
+                throw new ActionError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Unable to reject project",
                 });
             }
         },
