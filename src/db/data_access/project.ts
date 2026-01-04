@@ -5,6 +5,17 @@ import {user} from "../schema/auth-schema.ts";
 import {feedback} from "../schema/feedback-schema";
 import {alias} from "drizzle-orm/pg-core";
 
+export type Project = {
+    id: string
+    customerId: string
+    translatorId: string | null
+    languageCode: string
+    originalFilePrefix: string | null
+    translatedFilePrefix: string | null
+    state: "CREATED" | "ASSIGNED" | "COMPLETED" | "APPROVED" | "CLOSED"
+    createdAt: Date
+}
+
 export async function getProjectById(projectId: string) {
     const result = await db
         .select({
@@ -22,7 +33,7 @@ export async function getProjectById(projectId: string) {
     return result.length > 0 ? result[0] : null;
 }
 
-export async function assignTranslatorToProject(projectId: string, translatorId: string | null) {
+export async function assignTranslatorToProject(projectId: string, translatorId: string) {
     const result = await db
         .update(project)
         .set({translatorId})

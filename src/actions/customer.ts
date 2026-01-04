@@ -22,6 +22,7 @@ import {
     setOriginalFilePrefix, setProjectFeedback,
 } from "../db/data_access/project.ts";
 import {deleteProjectBucketPrefix, projectBucketUploadFile} from "../lib_backend/objectStorage.ts";
+import {allocateProject} from "../lib_backend/projectAllocator.ts";
 
 export const customer = {
     createProject: defineAction({
@@ -97,7 +98,45 @@ export const customer = {
                 });
             }
 
-            // 3) Upload file to bucket
+            // 3) Verify that project exists, and that user is assigned to it as customer
+            //#############################################################################
+            const data = await getProjectById(projectId);
+            const project = data?.project;
+
+            if (!project) {
+                throw new ActionError({code: "NOT_FOUND", message: "Project not found"});
+            }
+
+            if (project.customerId !== user.id) {
+                throw new ActionError({
+                    code: "FORBIDDEN",
+                    message: "You aren't assigned to this project as customer"
+                });
+            }
+
+            // 4) File can be uploaded only if the project is in "CREATED" state
+            //#############################################################################
+            if (project.state !== "CREATED") {
+                throw new ActionError({
+                    code: "BAD_REQUEST",
+                    message: "File can be uploaded only if the project is in 'CREATED' state"
+                });
+            }
+
+            // 5) Delete the current file if it exists
+            //#############################################################################
+            if (project.originalFilePrefix) {
+                try {
+                    await deleteProjectBucketPrefix(project.originalFilePrefix);
+                } catch (e) {
+                    throw new ActionError({
+                        code: "INTERNAL_SERVER_ERROR",
+                        message: "Unable delete current file from bucket."
+                    });
+                }
+            }
+
+            // 6) Upload file to bucket
             //#############################################################################
             const prefix = `${projectId}/${file.name}`;
             const buffer = Buffer.from(await file.arrayBuffer());
@@ -107,13 +146,17 @@ export const customer = {
                 throw new ActionError({code: "INTERNAL_SERVER_ERROR", message: "Unable to upload file to bucket."});
             }
 
-            // 4) The original file prefix should now point to this file
+            // 7) The original file prefix should now point to this file
             //#############################################################################
             await setOriginalFilePrefix(projectId, prefix);
 
-            // 5) Assign to translator
+            // 8) Assign to translator
             //#############################################################################
-
+            try {
+                await allocateProject(project);
+            } catch (e) {
+                throw new ActionError({code: "INTERNAL_SERVER_ERROR", message: "Project allocation to translator failed"});
+            }
         }
     }),
     getMyProjects: defineAction({
@@ -287,7 +330,7 @@ export const customer = {
             const user: User = isUserLoggedIn(context);
 
             if (!await hasViewMyProjectsPermission(user)) {
-                throw new ActionError({ code: "UNAUTHORIZED" });
+                throw new ActionError({code: "UNAUTHORIZED"});
             }
 
             // 1) Load project
@@ -341,7 +384,7 @@ export const customer = {
             const user: User = isUserLoggedIn(context);
 
             if (!await hasViewMyProjectsPermission(user)) {
-                throw new ActionError({ code: "UNAUTHORIZED" });
+                throw new ActionError({code: "UNAUTHORIZED"});
             }
 
             // 1) Load project

@@ -1,6 +1,7 @@
 import {db} from "../orm.ts";
-import {eq, and, inArray} from "drizzle-orm";
+import {eq, and, inArray, sql} from "drizzle-orm";
 import {translatorLanguage} from "../schema/translator-language-schema.ts";
+import {user} from "../schema/auth-schema.ts";
 
 //###############################
 //# Create / Delete
@@ -95,4 +96,28 @@ export async function translatorHasLanguage(
         .limit(1);
 
     return result.length > 0;
+}
+
+
+export async function getRandomTranslatorByLanguage(
+    languageCode: string,
+) {
+    const result = await db
+        .select({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        })
+        .from(translatorLanguage)
+        .innerJoin(user, eq(user.id, translatorLanguage.translatorId))
+        .where(
+            and(
+                eq(translatorLanguage.languageCode, languageCode),
+            ),
+        )
+        .orderBy(sql`random
+        ()`)
+        .limit(1);
+
+    return result[0] ?? null;
 }
