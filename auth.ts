@@ -20,7 +20,8 @@ async function afterUserDelete(deletedUser: User) {
 
 const auth = betterAuth({
     secret: import.meta.env.BETTER_AUTH_SECRET,
-    trustedOrigins: [import.meta.env.BASE_WEBSITE_URL, "http://localhost:80", "http://localhost:4321", "http://localhost",],
+    // Possibly add import.meta.env.BASE_WEBSITE_URL below too, however it causes errors during tests because we're importing type User defined here
+    trustedOrigins: ["http://localhost:80", "http://localhost:4321", "http://localhost",],
     database: drizzleAdapter(db, {
         provider: "pg", // or "mysql", "sqlite"
         schema: {
