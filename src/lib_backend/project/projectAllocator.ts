@@ -1,7 +1,7 @@
-import {assignTranslatorToProject, changeProjectState, type Project} from "../db/data_access/project.ts"
-import {getRandomTranslatorByLanguage} from "../db/data_access/translator.ts";
-import {sendFailedToAssignProject, sendProjectAssigned} from "./email.ts";
-import {getUserById} from "../db/data_access/user.ts";
+import {assignTranslatorToProject, changeProjectState, type Project} from "../../db/data_access/project.ts"
+import {getRandomTranslatorByLanguage} from "../../db/data_access/translator.ts";
+import {sendFailedToAssignProject, sendProjectAssigned} from "../email.ts";
+import {getUserById} from "../../db/data_access/user.ts";
 
 export async function allocateProject(project: Project) {
     const translator = await getRandomTranslatorByLanguage(project.languageCode);

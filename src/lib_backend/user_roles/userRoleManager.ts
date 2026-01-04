@@ -8,9 +8,3 @@ export async function setUserRole(user: User, role: string) {
 
     await setUserRoleById(user.id, role)
 }
-
-//##################################
-//# PERMISSION CHECKS
-//##################################
-
-
