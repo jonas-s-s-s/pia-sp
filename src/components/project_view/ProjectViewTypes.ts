@@ -29,3 +29,11 @@ export type ProjectState =
     | "COMPLETED"
     | "APPROVED"
     | "CLOSED";
+
+export const PROJECT_STATES: ProjectState[] = [
+    "CREATED",
+    "ASSIGNED",
+    "COMPLETED",
+    "APPROVED",
+    "CLOSED",
+];

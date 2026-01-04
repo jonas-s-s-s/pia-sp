@@ -14,6 +14,8 @@ import {
     hasAdminReactToFeedbackPermission,
     hasAdminMarkAsClosedPermission,
 } from "../lib_backend/user_roles/userRoleManager.ts";
+import {getUserById} from "../db/data_access/user.ts";
+import {sendProjectFeedback} from "../lib_backend/email.ts";
 
 export const administrator = {
     getAllProjectsWithFeedback: defineAction({
@@ -92,7 +94,7 @@ export const administrator = {
             // 3) Verify that project is in the "APPROVED" phase
             //#############################################################################
 
-            if(project.state !== "APPROVED") {
+            if (project.state !== "APPROVED") {
                 throw new ActionError({
                     code: "BAD_REQUEST",
                     message: "Only APPROVED project can be closed",
@@ -121,12 +123,42 @@ export const administrator = {
         handler: async (input, context) => {
             const user: User = isUserLoggedIn(context);
 
+            // 1) Permission check
+            //#############################################################################
             if (!await hasAdminReactToFeedbackPermission(user)) {
                 throw new ActionError({code: "UNAUTHORIZED"});
             }
 
-            // TODO: Send email
-            console.log("ADMIN SEND EMAIL: " + input.destinationUserID + " " + input.message);
+            // 2) Get the destination user record so we can send mail to him
+            //#############################################################################
+            let destinationUser: User | undefined;
+            try {
+                destinationUser = await getUserById(input.destinationUserID);
+            } catch (e) {
+                throw new ActionError({code: "BAD_REQUEST", message: "Unable to retrieve destination user data"});
+            }
+
+            if (!destinationUser) {
+                throw new ActionError({code: "BAD_REQUEST", message: "Unable to retrieve destination user data"});
+            }
+
+            const destinationEmail = destinationUser.email;
+
+            if (!destinationEmail) {
+                throw new ActionError({code: "BAD_REQUEST", message: "Destination user has no email"});
+            }
+
+            // 3) Send email
+            //#############################################################################
+            try {
+                await sendProjectFeedback(user.email, destinationEmail, input.projectId, input.message);
+            } catch (e) {
+                throw new ActionError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Unable to send email to destination user"
+                });
+            }
+
         },
     }),
 
@@ -144,7 +176,7 @@ export const administrator = {
             const user: User = isUserLoggedIn(context);
 
             if (!await hasAdminViewProjectsPermission(user)) {
-                throw new ActionError({ code: "UNAUTHORIZED" });
+                throw new ActionError({code: "UNAUTHORIZED"});
             }
 
             try {

@@ -18,3 +18,13 @@ export async function sendProjectCompletedNotification(to: string, id: string) {
         html: `<h1>Your project (ID: ${id}) has been completed</h1>`,
     });
 }
+
+export async function sendProjectFeedback(from: string ,to: string, projectId: string, text: string) {
+    return await transporter.sendMail({
+        from: from,
+        to: to,
+        subject: "Admin has sent you feedback on your project",
+        text: `Your project (ID: ${projectId}) has received feedback from an admin: ${text}`,
+        html: `<h1>Your project (ID: ${projectId}) has received feedback from an admin:</h1> <p>${text}</p>`,
+    });
+}
