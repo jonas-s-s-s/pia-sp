@@ -6,14 +6,6 @@ import {isUserLoggedIn} from "./actionUtils/userAuth.ts";
 import {isIso6391} from "../lib_frontend/iso-639-1.ts";
 
 import {
-    hasAddProjectFeedbackPermission,
-    hasCreateProjectPermission,
-    hasDeleteProjectsPermission,
-    hasUploadOriginalFilePermission,
-    hasViewMyProjectsPermission,
-} from "../lib_backend/user_roles/userRoleManager.ts";
-
-import {
     changeProjectState,
     createProject,
     deleteProjectById,
@@ -22,7 +14,11 @@ import {
     setOriginalFilePrefix, setProjectFeedback,
 } from "../db/data_access/project.ts";
 import {deleteProjectBucketPrefix, projectBucketUploadFile} from "../lib_backend/objectStorage.ts";
-import {allocateProject} from "../lib_backend/projectAllocator.ts";
+import {allocateProject} from "../lib_backend/project/projectAllocator.ts";
+import {
+    hasAddProjectFeedbackPermission, hasCreateProjectPermission,
+    hasDeleteProjectsPermission, hasUploadOriginalFilePermission, hasViewMyProjectsPermission
+} from "../lib_backend/user_roles/permissionChecking.ts";
 
 export const customer = {
     createProject: defineAction({

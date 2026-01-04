@@ -3,12 +3,6 @@ import {z} from "astro:schema";
 import {isUserLoggedIn} from "./actionUtils/userAuth.ts";
 import type {User} from "../../auth.ts";
 import {
-    hasDownloadOriginalFilePermission,
-    hasDownloadTranslatedFilePermission,
-    hasUpdateMyLanguagesPermission, hasUploadTranslatedFilePermission, hasViewAssignedProjectsPermission,
-    hasViewMyLanguagesPermission
-} from "../lib_backend/user_roles/userRoleManager.ts";
-import {
     addTranslatorLanguages,
     getTranslatorLanguages,
     removeTranslatorLanguages
@@ -27,6 +21,12 @@ import {
 } from "../lib_backend/objectStorage.ts";
 import {sendProjectCompletedNotification} from "../lib_backend/email.ts";
 import {getUserById} from "../db/data_access/user.ts";
+import {
+    hasDownloadOriginalFilePermission,
+    hasDownloadTranslatedFilePermission,
+    hasUpdateMyLanguagesPermission, hasUploadTranslatedFilePermission, hasViewAssignedProjectsPermission,
+    hasViewMyLanguagesPermission
+} from "../lib_backend/user_roles/permissionChecking.ts";
 
 export const translator = {
     addMyLanguages: defineAction({

@@ -9,13 +9,12 @@ import {
     getAllProjectsByState, changeProjectState, getProjectById, getAllProjectsWithFeedbackByState,
 } from "../db/data_access/project.ts";
 
-import {
-    hasAdminViewProjectsPermission,
-    hasAdminReactToFeedbackPermission,
-    hasAdminMarkAsClosedPermission,
-} from "../lib_backend/user_roles/userRoleManager.ts";
 import {getUserById} from "../db/data_access/user.ts";
 import {sendProjectFeedback} from "../lib_backend/email.ts";
+import {
+    hasAdminMarkAsClosedPermission,
+    hasAdminReactToFeedbackPermission, hasAdminViewProjectsPermission
+} from "../lib_backend/user_roles/permissionChecking.ts";
 
 export const administrator = {
     getAllProjectsWithFeedback: defineAction({
