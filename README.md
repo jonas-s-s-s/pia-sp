@@ -44,7 +44,7 @@ Web umožňuje uživateli měnit jazyk kliknutím na tlačítko **Czech** nebo *
 - Ostatní závislosti:
   - AWS SDK (S3 klient)
   - astro-icons a iconify-json (ikony v UI)
-  - nodemailer (odesílání malů)
+  - nodemailer (odesílání mailů)
   
 ## Struktura projektu
 
