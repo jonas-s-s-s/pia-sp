@@ -172,6 +172,15 @@ Tato sekce vysvětluje, jak byly implementovány jednotlivé body zadání, vče
 - Náhled ukažuje všechny projekty, co mají přiřazený nějaký feedback, dále je umožňuje filtrovat
 - Admin uživatele **nelze vytvoři přes webové UI, uživateli třeba manuálně v databázi nastavit roli Administrator** (tabulka Users)
 
+Pro změnu role použijtě tyto příkazy (se spuštěným Potgres kontejnerem):
+```
+docker exec -it postgres psql -U myuser -d mydatabase
+
+UPDATE "user" SET role = 'Administrator' WHERE email = '<email_uživatele>@example.com';
+
+SELECT id, email, role FROM "user" WHERE email = '<email_uživatele>@example.com';
+```
+
 ![img_2.png](./docs/img_2.png)
 
 # Další ukázky
