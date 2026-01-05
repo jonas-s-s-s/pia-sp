@@ -16,7 +16,7 @@ if (!userData || userData.role !== "Customer") {
 
 <StandardPage>
     <div class="flex flex-col items-center">
-        <h1 class="text-center text-3xl">My Projects</h1>
+        <h1 class="text-center text-3xl">{t('index.my_projects')}</h1>
         <CustomerProjectsView client:load lang={l}></CustomerProjectsView>
     </div>
 

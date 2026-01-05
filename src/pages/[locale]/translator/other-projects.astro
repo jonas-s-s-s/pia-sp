@@ -16,7 +16,7 @@ if (!userData || userData.role !== "Translator") {
 
 <StandardPage>
     <div class="flex flex-col items-center">
-        <h1 class="text-center text-3xl"> Other Projects</h1>
+        <h1 class="text-center text-3xl">{t('index.other_projects')}</h1>
         <TranslatorProjectsView client:load lang={l} projectType="OTHER"></TranslatorProjectsView>
 
     </div>

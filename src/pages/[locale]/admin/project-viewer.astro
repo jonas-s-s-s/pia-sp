@@ -16,7 +16,7 @@ if (!userData || userData.role !== "Administrator") {
 
 <StandardPage>
     <div class="flex flex-col items-center">
-        <h1 class="text-center text-3xl">Admin Assigned Projects Viewer</h1>
+        <h1 class="text-center text-3xl">{t('admin.assigned_projects_viewer')}</h1>
         <AdminProjectView client:load lang={l}></AdminProjectView>
     </div>
 
