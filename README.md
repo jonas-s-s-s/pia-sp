@@ -82,12 +82,12 @@ Obsah složky src je pak následujcí:
 - `actions`
   - Astro Actions, specifikace RPC API
   - V `actions/index.ts` je definován hlavní objekt, do kterého jsou pomocí parametrů předány Actions objekty definované v ostatních souborech 
-- components
+- `components`
   - UI komponenty, buď React (.tsx) nebo Astro (.astro), výhoda Astro komponent je, že jsou kompletně renderované na serveru (přirozené ale omezenějí použití frontend JS)
 - `db`
   - Databáze
   - V souboru orm.ts je definován hlavní ORM objekt, nad kterým je možné provádět SQL dotazy
-  - Složka `schemas` obsahuje difinice tabulek
+  - Složka `schemas` obsahuje definice tabulek
   - Ve složce `data_access` se nacházejí funkce pro modifikaci nebo čtení dat z databáze, toto je jediné místo v aplikaci, kde je ORM objekt volán na přímo, díky tomu lze tyto funkce pak snadno mockovat v unit testech
   - DrizzleORM je podobné spíše klasickému SQL než například Java ORM frameworkům. Výsledkem DrizzleORM dotazu je datový objekt, jehož typ je automaticky detekován IDE a kontrolován TypeScript language serverem.
 - `i18n`
@@ -99,7 +99,7 @@ Obsah složky src je pak následujcí:
 - `lib_backend`
   - knihovna funkcí určená pro použití na backendu
   - Složka `project` obsahuje business logiku ohledně přidělování projektu, voláno z Actions
-  - `user_roles` obahuje definici uživatelských rolí a jejich oprávnění
+  - `user_roles` obsahuje definici uživatelských rolí a jejich oprávnění
   - `email.ts` obsahuje funkce pro odesílání emailů
   - `objectStorage.ts` je soubor obsahující funkce pro přístup a modifikaci MinIO úložiště
 - `lib_frontend`
@@ -107,9 +107,9 @@ Obsah složky src je pak následujcí:
   - Logicky je lze použít také na backendu, pokud je to vhodné
   - Důležitý je zde soubor `AuthClient.ts`, který obsahuje funkce volající Better Auth endpoit
 - `middleware`
-  - Middleware je spuštěn jako prví při každém HTTP requestu, je zde implementována autentizace uživatele, objektu `User` který je v middleware uložen do Astro.locals pak mohou využívat ostatní části aplikace
+  - Middleware je spuštěn jako první při každém HTTP requestu, je zde implementována autentizace uživatele, objektu `User` který je v middleware uložen do Astro.locals pak mohou využívat ostatní části aplikace
 - `pages`
-  - Obshauje stránky ze kterých je tvořený web
+  - Obsahuje stránky ze kterých je tvořený web
   - Astro používá tzv. file-based routing, tedy obsah této složky určuje strukturu URL
   - Složka `api` uvnitř této složky je výše zmiňovaný Better Auth endpoint
 - `styles`
@@ -126,13 +126,13 @@ Příkazy pro spuštění aplikace tedy jsou:
 docker compose up
 ```
 
-Poté co je kontejner s databází spuštěn provědtě v tomto adresáři příkay:
+Poté co je kontejner s databází spuštěn proveďte v tomto adresáři příkay:
 ```
 npm install
 npm drizzle-kit push
 ```
 
-Po provedení by měla být databáze inicializována a aplikace plně fuknční.
+Po provedení by měla být databáze inicializována a aplikace funkční fuknční.
 
 Webové rozhraní je na `localhost:80`, GUI mail serveru je na `localhost:8080`, MinIO GUI je na `localhost:9001`.
 
@@ -150,9 +150,9 @@ Tato sekce vysvětluje, jak byly implementovány jednotlivé body zadání, vče
 1) **Customer creates translation projects in the service, submitting source files (any file type) in English**
 - Vytvoříme nového uživatele, jehož role je Customer
 - Na hlavní stránce klikneme na "New Project"
-- Uživatel nyní může nahrát soubor, poté co ho nahraje je nejdřív vytvořen nový projek, pak je mu přiřazen soubor a překladatel
+- Uživatel nyní může nahrát soubor, poté co ho nahraje je nejdřív vytvořen nový projekt, pak je mu přiřazen soubor a překladatel
 
-![img.png](./docs/img.png)
+<img src="./docs/img.png" width="600">
 
 2) **Service finds suitable translator for given project based on the target language, assigns the project and notifies the translator via email; if no translator is found, service closes the project and notifies the customer via email**
 - Na frontendu je to provedeno v jednom kroku, když uživatel nahraje soubor
@@ -165,12 +165,13 @@ Tato sekce vysvětluje, jak byly implementovány jednotlivé body zadání, vče
 4) **Customer approves/rejects completed translations and submits feedback to the project**
 - Pro uživatele s rolí Customer je to tlačítko na hlavní stránce "Review Projects"
 - Volá actions uvnitř `actions/customer.ts`
-![img_1.png](./docs/img_1.png)
+
+<img src="./docs/img_1.png" width="600">
 
 5) **Administrator resolves customer feedback, sending messages to customer/translator and ultimately closing the whole project**
 - Uživatel role Administrator vidí na hlavní stránce pod názvem "Admin Project Viewer"
-- Náhled ukažuje všechny projekty, co mají přiřazený nějaký feedback, dále je umožňuje filtrovat
-- Admin uživatele **nelze vytvoři přes webové UI, uživateli třeba manuálně v databázi nastavit roli Administrator** (tabulka Users)
+- Náhled ukazuje všechny projekty, co mají přiřazený nějaký feedback, dále je umožňuje filtrovat
+- Admin uživatele **nelze vytvořit přes webové UI, uživateli třeba manuálně v databázi nastavit roli Administrator** (tabulka Users)
 
 Pro změnu role použijtě tyto příkazy (se spuštěným Potgres kontejnerem):
 ```
@@ -182,25 +183,26 @@ SELECT id, email, role FROM "user" WHERE email = '<email_uživatele>@example.com
 ```
 
 ![img_2.png](./docs/img_2.png)
+<img src="./docs/img_2.png" width="600">
 
 # Další ukázky
 
-![img_3.png](./docs/img_3.png)
+<img src="./docs/img_3.png" width="800">
 
-![img_4.png](./docs/img_4.png)
+<img src="./docs/img_4.png" width="800">
 
-![img_5.png](./docs/img_5.png)
+<img src="./docs/img_5.png" width="800">
 
-![img_6.png](./docs/img_6.png)
+<img src="./docs/img_6.png" width="800">
 
-![img_7.png](./docs/img_7.png)
+<img src="./docs/img_7.png" width="800">
 
-![img_8.png](./docs/img_8.png)
+<img src="./docs/img_8.png" width="800">
 
-![img_9.png](./docs/img_9.png)
+<img src="./docs/img_9.png" width="800">
 
-![img_10.png](./docs/img_10.png)
+<img src="./docs/img_10.png" width="800">
 
-![img.png](./docs/docker.png)
+<img src="./docs/docker.png" width="800">
 
-![img.png](./docs/smtp.png)
+<img src="./docs/smtp.png" width="600">
