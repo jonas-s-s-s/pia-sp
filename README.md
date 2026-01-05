@@ -182,7 +182,6 @@ UPDATE "user" SET role = 'Administrator' WHERE email = '<email_uživatele>@examp
 SELECT id, email, role FROM "user" WHERE email = '<email_uživatele>@example.com';
 ```
 
-![img_2.png](./docs/img_2.png)
 <img src="./docs/img_2.png" width="600">
 
 # Další ukázky
