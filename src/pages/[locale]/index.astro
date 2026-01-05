@@ -9,13 +9,6 @@ const t = useTranslations(lang);
 
 const {locale} = Astro.params;
 
-// Validate language
-if (!locale || !(locale in languages)) {
-    //TODO: 404 REDIRECT??? Somehow move this into middleware?
-    //TODO: Maybe astro library bug???
-    //console.log(locale, "is not a valid locale");
-}
-
 const userData = Astro.locals.user;
 ---
 

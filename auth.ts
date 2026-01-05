@@ -7,9 +7,6 @@ import {admin as adminPlugin} from "better-auth/plugins";
 import {user, session, account, verification} from "./src/db/schema/auth-schema.ts";
 
 
-// TODO: Sending email?
-// import {sendVerificationEmail, sendChangeEmailVerification, sendPasswordResetEmail} from "./email.ts";
-
 async function beforeUserDelete(user: User) {
     // "Clean up" BEFORE a user account is deleted
 }
@@ -88,7 +85,6 @@ const auth = betterAuth({
                     Administrator,
                 },
                 defaultRole: "Customer",
-                //adminUserIds: [""], // TODO: Set default admin?
                 defaultBanReason: "Ban reason not specified.",
                 defaultBanExpiresIn: 60 * 60 * 24, // 1 day,
                 bannedUserMessage: "You have been banned.", // The message to show when a banned user tries to sign in
