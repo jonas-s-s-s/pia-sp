@@ -3,7 +3,7 @@ name: pia_service
 services:
   postgres:
     image: postgres:17
-    container_name: pia_postgres_db
+    container_name: postgres
     restart: unless-stopped
     ports:
       - "5432:5432"
@@ -14,7 +14,7 @@ services:
 
   minio:
     image: quay.io/minio/minio:latest
-    container_name: pia_minio
+    container_name: minio
     command: server /data --console-address ":9001"
     restart: unless-stopped
     ports:
@@ -27,7 +27,7 @@ services:
 
   fake-smtp:
     image: gessnerfl/fake-smtp-server:latest
-    container_name: pia_fake_smtp
+    container_name: fake-smtp
     restart: unless-stopped
     ports:
       - "8025:8025" # SMTP
@@ -35,6 +35,21 @@ services:
       - "8081:8081"
     env_file:
       - .env.development
+
+  astro-http-server:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: astro_http_server
+    restart: unless-stopped
+    ports:
+      - "80:4321"
+    env_file:
+      - .env.development
+    depends_on:
+      - postgres
+      - minio
+      - fake-smtp
 
 volumes:
   pia_postgres_data:
