@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import {actions} from "astro:actions";
 import {ProjectView} from "../project_view/ProjectView.tsx";
 import type {ProjectActionsProps} from "../project_view/ProjectViewTypes.ts";
+import {downloadFileFromServer} from "../../lib_frontend/downloadFile.ts";
 
 type ProjectsViewProps = {
     lang: string;
@@ -28,12 +29,7 @@ export const CompletedProjectActions: React.FC<ProjectActionsProps> = ({item, la
 
 
     const handleDownload = async (type: "original" | "translated") => {
-        const {error, data} = await actions.translator.downloadFile({projectId: item.projectId, type});
-        if (error) {
-            setError(error.message || "Error " + error.code);
-        } else {
-            window.open(data, "_blank");
-        }
+        await downloadFileFromServer(item.projectId, type, (err: string) => {setError(err);});
     };
 
     async function handleAddFeedBack(text: string, projectId: string) {

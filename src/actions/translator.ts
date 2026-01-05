@@ -11,12 +11,14 @@ import {isIso6391} from "../lib_frontend/iso-639-1.ts";
 import {
     changeProjectState,
     getProjectById,
-    getProjectsByTranslatorId, getProjectsByTranslatorIdAndState, getProjectsByTranslatorIdNonAssigned,
+    getProjectsByTranslatorId,
+    getProjectsByTranslatorIdAndState,
+    getProjectsByTranslatorIdNonAssigned,
     setTranslatedFilePrefix
 } from "../db/data_access/project.ts";
 import {
     deleteProjectBucketPrefix,
-    projectBucketGenerateDownloadUrl,
+    projectBucketDownloadFile,
     projectBucketUploadFile
 } from "../lib_backend/objectStorage.ts";
 import {sendProjectCompletedNotification} from "../lib_backend/email.ts";
@@ -24,7 +26,9 @@ import {getUserById} from "../db/data_access/user.ts";
 import {
     hasDownloadOriginalFilePermission,
     hasDownloadTranslatedFilePermission,
-    hasUpdateMyLanguagesPermission, hasUploadTranslatedFilePermission, hasViewAssignedProjectsPermission,
+    hasUpdateMyLanguagesPermission,
+    hasUploadTranslatedFilePermission,
+    hasViewAssignedProjectsPermission,
     hasViewMyLanguagesPermission
 } from "../lib_backend/user_roles/permissionChecking.ts";
 
@@ -255,13 +259,12 @@ export const translator = {
 
             // 0) Check user's permission to download file
             //#############################################################################
-
-            if (input.type == "translated" && !await hasDownloadTranslatedFilePermission(user)) {
-                throw new ActionError({code: "UNAUTHORIZED"});
+            if (input.type === "translated" && !await hasDownloadTranslatedFilePermission(user)) {
+                throw new ActionError({ code: "UNAUTHORIZED" });
             }
 
-            if (input.type == "original" && !await hasDownloadOriginalFilePermission(user)) {
-                throw new ActionError({code: "UNAUTHORIZED"});
+            if (input.type === "original" && !await hasDownloadOriginalFilePermission(user)) {
+                throw new ActionError({ code: "UNAUTHORIZED" });
             }
 
             // 1) Verify that project exists, and that user is assigned to it as a translator or customer
@@ -270,45 +273,44 @@ export const translator = {
             const project = data?.project;
 
             if (!project) {
-                throw new ActionError({code: "NOT_FOUND", message: "Project not found"});
+                throw new ActionError({ code: "NOT_FOUND", message: "Project not found" });
             }
 
             if (project.translatorId !== user.id && project.customerId !== user.id) {
                 throw new ActionError({
                     code: "FORBIDDEN",
-                    message: "You aren't assigned to this project"
+                    message: "You aren't assigned to this project",
                 });
             }
 
             // 2) Check if the file prefix exists
             //#############################################################################
-
-            if (input.type == "translated" && !project.translatedFilePrefix) {
+            const key = input.type === "original" ? project.originalFilePrefix : project.translatedFilePrefix;
+            if (!key) {
                 throw new ActionError({
                     code: "NOT_FOUND",
-                    message: "Translated file doesn't exist"
+                    message: `${input.type === "original" ? "Original" : "Translated"} file doesn't exist`,
                 });
             }
 
-            if (input.type == "original" && !project.originalFilePrefix) {
-                throw new ActionError({
-                    code: "NOT_FOUND",
-                    message: "Original file doesn't exist"
-                });
-            }
-
-            // 3) Return the download link
+            // 3) Download the file from object store and send it back to the client
             //#############################################################################
-
             try {
-                if (input.type == "original")
-                    return await projectBucketGenerateDownloadUrl(project.originalFilePrefix!);
-                else
-                    return await projectBucketGenerateDownloadUrl(project.translatedFilePrefix!);
+                const fileData = await projectBucketDownloadFile(key);
+
+                const fileName = key.split("/").pop() || "file";
+                return {
+                    file: fileData,
+                    fileName,
+                };
             } catch (e) {
-                throw new ActionError({code: "INTERNAL_SERVER_ERROR"});
+                console.error(e);
+                throw new ActionError({ code: "INTERNAL_SERVER_ERROR", message: "Unable to fetch file" });
             }
         },
     }),
+
+
+
 
 };

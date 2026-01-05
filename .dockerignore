@@ -1,0 +1,5 @@
+.astro
+.idea
+.vscode
+node_modules
+docs

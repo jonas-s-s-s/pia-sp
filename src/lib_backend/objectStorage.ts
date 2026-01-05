@@ -161,6 +161,38 @@ export async function projectBucketGenerateDownloadUrl(
     return getSignedUrl(s3, command, { expiresIn });
 }
 
+
+/**
+ * Download a file from the project bucket
+ */
+export async function projectBucketDownloadFile(key: string): Promise<Uint8Array> {
+    const command = new GetObjectCommand({
+        Bucket: PROJECT_BUCKET_NAME,
+        Key: key,
+    });
+
+    try {
+        const s3Response = await s3.send(command);
+
+        const chunks: Uint8Array[] = [];
+        for await (const chunk of s3Response.Body as AsyncIterable<Uint8Array>) {
+            chunks.push(chunk);
+        }
+        const totalLength = chunks.reduce((sum, c) => sum + c.length, 0);
+        const buffer = new Uint8Array(totalLength);
+        let offset = 0;
+        for (const chunk of chunks) {
+            buffer.set(chunk, offset);
+            offset += chunk.length;
+        }
+
+        return buffer;
+    } catch (err) {
+        console.error("Error downloading file from S3:", err);
+        throw err;
+    }
+}
+
 //////////////////////////////////////////////////
 // BUCKET MANAGEMENT
 //////////////////////////////////////////////////
