@@ -35,7 +35,7 @@ if (!userData) {
                 </li>
                 <li class="flex justify-between">
                     <span class="font-medium text-zinc-700">{t('my-profile.email_verified')}</span>
-                    <span class="text-zinc-900">{userData.emailVerified ? '{t('my-profile.yes')}' : '{t('my-profile.no')}'}</span>
+                    <span class="text-zinc-900">{userData.emailVerified ? (t("my-profile.yes")) : (t('my-profile.no'))}</span>
                 </li>
                 <li class="flex justify-between">
                     <span class="font-medium text-zinc-700">{t('my-profile.created_at')}</span>
