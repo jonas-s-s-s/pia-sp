@@ -152,7 +152,7 @@ Tato sekce vysvětluje, jak byly implementovány jednotlivé body zadání, vče
 - Na hlavní stránce klikneme na "New Project"
 - Uživatel nyní může nahrát soubor, poté co ho nahraje je nejdřív vytvořen nový projekt, pak je mu přiřazen soubor a překladatel
 
-![img.png](./docs/img.png)
+<img src="./docs/img.png" width="600">
 
 2) **Service finds suitable translator for given project based on the target language, assigns the project and notifies the translator via email; if no translator is found, service closes the project and notifies the customer via email**
 - Na frontendu je to provedeno v jednom kroku, když uživatel nahraje soubor
@@ -165,33 +165,34 @@ Tato sekce vysvětluje, jak byly implementovány jednotlivé body zadání, vče
 4) **Customer approves/rejects completed translations and submits feedback to the project**
 - Pro uživatele s rolí Customer je to tlačítko na hlavní stránce "Review Projects"
 - Volá actions uvnitř `actions/customer.ts`
-![img_1.png](./docs/img_1.png)
+
+<img src="./docs/img_1.png" width="600">
 
 5) **Administrator resolves customer feedback, sending messages to customer/translator and ultimately closing the whole project**
 - Uživatel role Administrator vidí na hlavní stránce pod názvem "Admin Project Viewer"
 - Náhled ukazuje všechny projekty, co mají přiřazený nějaký feedback, dále je umožňuje filtrovat
 - Admin uživatele **nelze vytvořit přes webové UI, uživateli třeba manuálně v databázi nastavit roli Administrator** (tabulka Users)
 
-![img_2.png](./docs/img_2.png)
+<img src="./docs/img_2.png" width="600">
 
 # Další ukázky
 
-![img_3.png](./docs/img_3.png)
+<img src="./docs/img_3.png" width="800">
 
-![img_4.png](./docs/img_4.png)
+<img src="./docs/img_4.png" width="800">
 
-![img_5.png](./docs/img_5.png)
+<img src="./docs/img_5.png" width="800">
 
-![img_6.png](./docs/img_6.png)
+<img src="./docs/img_6.png" width="800">
 
-![img_7.png](./docs/img_7.png)
+<img src="./docs/img_7.png" width="800">
 
-![img_8.png](./docs/img_8.png)
+<img src="./docs/img_8.png" width="800">
 
-![img_9.png](./docs/img_9.png)
+<img src="./docs/img_9.png" width="800">
 
-![img_10.png](./docs/img_10.png)
+<img src="./docs/img_10.png" width="800">
 
-![img.png](./docs/docker.png)
+<img src="./docs/docker.png" width="800">
 
-![img.png](./docs/smtp.png)
+<img src="./docs/smtp.png" width="600">
