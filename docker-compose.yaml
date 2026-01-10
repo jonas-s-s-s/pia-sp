@@ -10,7 +10,10 @@ services:
     env_file:
       - .env.development
     volumes:
+      # DB data
       - pia_postgres_data:/var/lib/postgresql/data
+      # SQL Migrate script is executed when the container's data volume is first initialized
+      - ./drizzle/migrate.sql:/docker-entrypoint-initdb.d/migrate.sql:ro
 
   minio:
     image: quay.io/minio/minio:latest
