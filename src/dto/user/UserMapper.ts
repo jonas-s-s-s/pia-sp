@@ -1,6 +1,6 @@
 // mapper/user.mapper.ts
 import type { UserDTO } from "./UserDTO.ts";
-import type {userRow} from "../../src/db/schema/auth-schema.ts";
+import type {userRow} from "../../db/schema/auth-schema.ts";
 
 export function toUserDTO(row: userRow): UserDTO {
     return {

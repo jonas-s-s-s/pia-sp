@@ -19,7 +19,7 @@ import {
     hasAdminReactToFeedbackPermission,
     hasAdminViewProjectsPermission
 } from "../lib_backend/user_roles/permissionChecking.ts";
-import {toProjectDTO} from "../../dto/project/ProjectMapper.ts";
+import {toProjectDTO} from "../dto/project/ProjectMapper.ts";
 import {projectState} from "../db/schema/project-schema.ts";
 
 export const administrator = {

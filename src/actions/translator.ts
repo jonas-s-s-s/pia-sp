@@ -31,9 +31,9 @@ import {
     hasViewAssignedProjectsPermission,
     hasViewMyLanguagesPermission
 } from "../lib_backend/user_roles/permissionChecking.ts";
-import {toTranslatorLanguagesDTO} from "../../dto/translator/TranslatorLanguagesMapper.ts";
+import {toTranslatorLanguagesDTO} from "../dto/translator/TranslatorLanguagesMapper.ts";
 import {projectState} from "../db/schema/project-schema.ts";
-import {toProjectDTO} from "../../dto/project/ProjectMapper.ts";
+import {toProjectDTO} from "../dto/project/ProjectMapper.ts";
 
 export const translator = {
     addMyLanguages: defineAction({

@@ -1,5 +1,5 @@
 import React from "react";
-import type {ProjectDTO} from "../../../dto/project/ProjectDTO.ts";
+import type {ProjectDTO} from "../../dto/project/ProjectDTO.ts";
 import type {projectState} from "../../db/schema/project-schema.ts";
 
 export type ProjectItem = ProjectDTO;
