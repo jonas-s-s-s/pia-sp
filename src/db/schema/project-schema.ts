@@ -1,14 +1,17 @@
 import {pgEnum} from "drizzle-orm/pg-core";
 import {pgTable, text, timestamp, index,} from "drizzle-orm/pg-core";
 import {user} from "./auth-schema";
+import {enumToPgEnum} from "../dbUtils.ts";
 
-export const projectStateEnum = pgEnum("project_state", [
-    "CREATED",
-    "ASSIGNED",
-    "COMPLETED",
-    "APPROVED",
-    "CLOSED",
-]);
+export enum projectState {
+    CREATED = 'CREATED',
+    ASSIGNED = 'ASSIGNED',
+    COMPLETED = 'COMPLETED',
+    APPROVED = 'APPROVED',
+    CLOSED = 'CLOSED',
+}
+
+export const projectStatePgEnum = pgEnum("project_state", enumToPgEnum(projectState));
 
 export const project = pgTable(
     "project",
@@ -31,8 +34,8 @@ export const project = pgTable(
 
         translatedFilePrefix: text("translated_file_prefix"),
 
-        state: projectStateEnum("state")
-            .default("CREATED")
+        state: projectStatePgEnum("state")
+            .default(projectState.CREATED)
             .notNull(),
 
         createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -43,3 +46,5 @@ export const project = pgTable(
         index("project_state_idx").on(table.state),
     ],
 );
+
+export type projectRow = typeof project.$inferSelect;

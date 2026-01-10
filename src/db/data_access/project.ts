@@ -1,175 +1,130 @@
 import {db} from "../orm";
 import {and, eq, ne} from "drizzle-orm";
-import {project, projectStateEnum} from "../schema/project-schema";
-import {user} from "../schema/auth-schema.ts";
+import {project, projectState} from "../schema/project-schema";
+import {user} from "../schema/auth-schema";
 import {feedback} from "../schema/feedback-schema";
 import {alias} from "drizzle-orm/pg-core";
+import crypto from "crypto";
 
-export type Project = {
-    id: string
-    customerId: string
-    translatorId: string | null
-    languageCode: string
-    originalFilePrefix: string | null
-    translatedFilePrefix: string | null
-    state: "CREATED" | "ASSIGNED" | "COMPLETED" | "APPROVED" | "CLOSED"
-    createdAt: Date
+
+//##################################################################
+/// Shared select (same field names for all queries) 
+//##################################################################
+
+function projectWithJoinsSelect(translatorAlias: ReturnType<typeof alias>) {
+    return {
+        projectId: project.id,
+        languageCode: project.languageCode,
+        originalFilePrefix: project.originalFilePrefix,
+        translatedFilePrefix: project.translatedFilePrefix,
+        state: project.state,
+        createdAt: project.createdAt,
+
+        customerId: project.customerId,
+        customerName: user.name,
+
+        translatorId: project.translatorId,
+        translatorName: translatorAlias.name,
+
+        feedbackText: feedback.text,
+        feedbackCreatedAt: feedback.createdAt,
+    };
 }
 
+//##################################################################
+// Single project                                                   
+//##################################################################
+
 export async function getProjectById(projectId: string) {
+    const translator = alias(user, "translator");
+
     const result = await db
-        .select({
-            project,
-            feedback: {
-                text: feedback.text,
-                createdAt: feedback.createdAt,
-            },
-        })
+        .select(projectWithJoinsSelect(translator))
         .from(project)
+        .leftJoin(user, eq(project.customerId, user.id))
+        .leftJoin(translator, eq(project.translatorId, translator.id))
         .leftJoin(feedback, eq(feedback.projectId, project.id))
         .where(eq(project.id, projectId))
         .limit(1);
 
-    return result.length > 0 ? result[0] : null;
+    return result[0] ?? null;
 }
 
-export async function assignTranslatorToProject(projectId: string, translatorId: string) {
+//##################################################################
+// Mutations
+//##################################################################
+
+export async function assignTranslatorToProject(
+    projectId: string,
+    translatorId: string,
+) {
     const result = await db
         .update(project)
         .set({translatorId})
         .where(eq(project.id, projectId))
-        .returning({id: project.id, translatorId: project.translatorId});
+        .returning();
 
-    if (!result[0])
+    if (!result[0]) {
         throw new Error("Project not found or translator not assigned.");
+    }
+
     return result[0];
 }
 
-export async function setOriginalFilePrefix(projectId: string, prefix: string) {
+export async function setOriginalFilePrefix(
+    projectId: string,
+    prefix: string,
+) {
     const result = await db
         .update(project)
         .set({originalFilePrefix: prefix})
         .where(eq(project.id, projectId))
-        .returning({id: project.id, originalFilePrefix: project.originalFilePrefix});
+        .returning();
 
-    if (!result[0])
+    if (!result[0]) {
         throw new Error("Project not found or original file prefix not set.");
+    }
+
     return result[0];
 }
 
-export async function setTranslatedFilePrefix(projectId: string, prefix: string) {
+export async function setTranslatedFilePrefix(
+    projectId: string,
+    prefix: string,
+) {
     const result = await db
         .update(project)
         .set({translatedFilePrefix: prefix})
         .where(eq(project.id, projectId))
-        .returning({id: project.id, translatedFilePrefix: project.translatedFilePrefix});
+        .returning();
 
-    if (!result[0])
+    if (!result[0]) {
         throw new Error("Project not found or translated file prefix not set.");
+    }
+
     return result[0];
 }
 
-// TypeScript stuff that converts the projectStateEnum to a propper type
-type ProjectState = (typeof projectStateEnum.enumValues)[number];
-
-export async function changeProjectState(projectId: string, newState: ProjectState) {
+export async function changeProjectState(
+    projectId: string,
+    newState: projectState,
+) {
     const result = await db
         .update(project)
         .set({state: newState})
         .where(eq(project.id, projectId))
-        .returning({id: project.id, state: project.state});
+        .returning();
 
-    if (!result[0])
+    if (!result[0]) {
         throw new Error("Project not found or state not updated.");
+    }
+
     return result[0];
 }
 
-export async function getProjectsByTranslatorId(translatorId: string) {
-    // TODO: In a real project this would use some kind of pagination
-
-    const results = await db
-        .select({
-            projectId: project.id,
-            languageCode: project.languageCode,
-            originalFilePrefix: project.originalFilePrefix,
-            translatedFilePrefix: project.translatedFilePrefix,
-            state: project.state,
-            createdAt: project.createdAt,
-            customerId: user.id,
-            customerName: user.name,
-            feedbackText: feedback.text,
-            feedbackCreatedAt: feedback.createdAt,
-        })
-        .from(project)
-        .leftJoin(user, eq(project.customerId, user.id))
-        .leftJoin(feedback, eq(feedback.projectId, project.id))
-        .where(eq(project.translatorId, translatorId));
-
-    return results;
-}
-
-export async function getProjectsByTranslatorIdAndState(
-    translatorId: string,
-    state: ProjectState,
-) {
-    // TODO: In a real project this would use some kind of pagination
-
-    const results = await db
-        .select({
-            projectId: project.id,
-            languageCode: project.languageCode,
-            originalFilePrefix: project.originalFilePrefix,
-            translatedFilePrefix: project.translatedFilePrefix,
-            state: project.state,
-            createdAt: project.createdAt,
-            customerId: user.id,
-            customerName: user.name,
-            feedbackText: feedback.text,
-            feedbackCreatedAt: feedback.createdAt,
-        })
-        .from(project)
-        .leftJoin(user, eq(project.customerId, user.id))
-        .leftJoin(feedback, eq(feedback.projectId, project.id))
-        .where(
-            and(
-                eq(project.translatorId, translatorId),
-                eq(project.state, state),
-            ),
-        );
-
-    return results;
-}
-
-export async function getProjectsByTranslatorIdNonAssigned(
-    translatorId: string,
-) {
-    // TODO: In a real project this would use some kind of pagination
-
-    const results = await db
-        .select({
-            projectId: project.id,
-            languageCode: project.languageCode,
-            originalFilePrefix: project.originalFilePrefix,
-            translatedFilePrefix: project.translatedFilePrefix,
-            state: project.state,
-            createdAt: project.createdAt,
-            customerId: user.id,
-            customerName: user.name,
-            feedbackText: feedback.text,
-            feedbackCreatedAt: feedback.createdAt,
-        })
-        .from(project)
-        .leftJoin(user, eq(project.customerId, user.id))
-        .leftJoin(feedback, eq(feedback.projectId, project.id))
-        .where(
-            and(
-                eq(project.translatorId, translatorId),
-                ne(project.state, "ASSIGNED"),
-            ),
-        );
-
-    return results;
-}
+//##################################################################
+// Creation                                                          
+//##################################################################
 
 export async function createProject(params: {
     customerId: string;
@@ -199,86 +154,85 @@ export async function createProject(params: {
     return result[0];
 }
 
+//##################################################################
+/// Queries by translator                                           
+//##################################################################
+
+export async function getProjectsByTranslatorId(translatorId: string) {
+    const translator = alias(user, "translator");
+
+    return db
+        .select(projectWithJoinsSelect(translator))
+        .from(project)
+        .leftJoin(user, eq(project.customerId, user.id))
+        .leftJoin(translator, eq(project.translatorId, translator.id))
+        .leftJoin(feedback, eq(feedback.projectId, project.id))
+        .where(eq(project.translatorId, translatorId));
+}
+
+export async function getProjectsByTranslatorIdAndState(
+    translatorId: string,
+    state: projectState,
+) {
+    const translator = alias(user, "translator");
+
+    return db
+        .select(projectWithJoinsSelect(translator))
+        .from(project)
+        .leftJoin(user, eq(project.customerId, user.id))
+        .leftJoin(translator, eq(project.translatorId, translator.id))
+        .leftJoin(feedback, eq(feedback.projectId, project.id))
+        .where(
+            and(
+                eq(project.translatorId, translatorId),
+                eq(project.state, state),
+            ),
+        );
+}
+
+export async function getProjectsByTranslatorIdNonAssigned(
+    translatorId: string,
+) {
+    const translator = alias(user, "translator");
+
+    return db
+        .select(projectWithJoinsSelect(translator))
+        .from(project)
+        .leftJoin(user, eq(project.customerId, user.id))
+        .leftJoin(translator, eq(project.translatorId, translator.id))
+        .leftJoin(feedback, eq(feedback.projectId, project.id))
+        .where(
+            and(
+                eq(project.translatorId, translatorId),
+                ne(project.state, projectState.ASSIGNED),
+            ),
+        );
+}
+
+//##################################################################
+// Queries by customer                                              
+//##################################################################
+
 export async function getProjectsByCustomerId(customerId: string) {
     const translator = alias(user, "translator");
 
-    const results = await db
-        .select({
-            projectId: project.id,
-            languageCode: project.languageCode,
-            originalFilePrefix: project.originalFilePrefix,
-            translatedFilePrefix: project.translatedFilePrefix,
-            state: project.state,
-            createdAt: project.createdAt,
-
-            customerId: project.customerId,
-            customerName: user.name,
-
-            translatorId: project.translatorId,
-            translatorName: translator.name,
-
-            feedbackText: feedback.text,
-            feedbackCreatedAt: feedback.createdAt,
-        })
+    return db
+        .select(projectWithJoinsSelect(translator))
         .from(project)
-
         .leftJoin(user, eq(project.customerId, user.id))
-
         .leftJoin(translator, eq(project.translatorId, translator.id))
-
         .leftJoin(feedback, eq(feedback.projectId, project.id))
         .where(eq(project.customerId, customerId));
-
-    return results;
-}
-
-export async function deleteProjectById(
-    projectId: string,
-    customerId?: string,
-) {
-    const whereClause = customerId
-        ? and(
-            eq(project.id, projectId),
-            eq(project.customerId, customerId),
-        )
-        : eq(project.id, projectId);
-
-    const result = await db
-        .delete(project)
-        .where(whereClause)
-        .returning({id: project.id});
-
-    if (!result[0]) {
-        throw new Error("Project not found or not owned by customer.");
-    }
-
-    return result[0];
 }
 
 export async function getProjectsByCustomerIdAndState(
     customerId: string,
-    state: ProjectState,
+    state: projectState,
 ) {
     const translator = alias(user, "translator");
 
-    const results = await db
-        .select({
-            projectId: project.id,
-            languageCode: project.languageCode,
-            originalFilePrefix: project.originalFilePrefix,
-            translatedFilePrefix: project.translatedFilePrefix,
-            state: project.state,
-            createdAt: project.createdAt,
-
-            customerId: project.customerId,
-            customerName: user.name,
-
-            translatorId: project.translatorId,
-            translatorName: translator.name,
-
-            feedbackText: feedback.text,
-            feedbackCreatedAt: feedback.createdAt,
-        })
+    return db
+        .select(projectWithJoinsSelect(translator))
         .from(project)
         .leftJoin(user, eq(project.customerId, user.id))
         .leftJoin(translator, eq(project.translatorId, translator.id))
@@ -289,9 +243,11 @@ export async function getProjectsByCustomerIdAndState(
                 eq(project.state, state),
             ),
         );
-
-    return results;
 }
+
+//##################################################################
+//# Feedback                                                         
+//##################################################################
 
 export async function setProjectFeedback(
     projectId: string,
@@ -299,10 +255,7 @@ export async function setProjectFeedback(
 ) {
     const result = await db
         .insert(feedback)
-        .values({
-            projectId,
-            text,
-        })
+        .values({projectId, text})
         .onConflictDoUpdate({
             target: feedback.projectId,
             set: {
@@ -310,11 +263,7 @@ export async function setProjectFeedback(
                 createdAt: new Date(),
             },
         })
-        .returning({
-            projectId: feedback.projectId,
-            text: feedback.text,
-            createdAt: feedback.createdAt,
-        });
+        .returning();
 
     if (!result[0]) {
         throw new Error("Unable to set feedback.");
@@ -323,94 +272,69 @@ export async function setProjectFeedback(
     return result[0];
 }
 
+//##################################################################
+//# Admin / global queries                                             
+//##################################################################
+
 export async function getAllProjectsWithFeedback() {
     const translator = alias(user, "translator");
 
-    const results = await db
-        .select({
-            projectId: project.id,
-            languageCode: project.languageCode,
-            originalFilePrefix: project.originalFilePrefix,
-            translatedFilePrefix: project.translatedFilePrefix,
-            state: project.state,
-            createdAt: project.createdAt,
-
-            customerId: project.customerId,
-            customerName: user.name,
-
-            translatorId: project.translatorId,
-            translatorName: translator.name,
-
-            feedbackText: feedback.text,
-            feedbackCreatedAt: feedback.createdAt,
-        })
+    return db
+        .select(projectWithJoinsSelect(translator))
         .from(project)
         .innerJoin(feedback, eq(feedback.projectId, project.id))
         .leftJoin(user, eq(project.customerId, user.id))
         .leftJoin(translator, eq(project.translatorId, translator.id));
-
-    return results;
 }
 
-export async function getAllProjectsByState(state: ProjectState) {
+export async function getAllProjectsByState(state: projectState) {
     const translator = alias(user, "translator");
 
-    const results = await db
-        .select({
-            projectId: project.id,
-            languageCode: project.languageCode,
-            originalFilePrefix: project.originalFilePrefix,
-            translatedFilePrefix: project.translatedFilePrefix,
-            state: project.state,
-            createdAt: project.createdAt,
-
-            customerId: project.customerId,
-            customerName: user.name,
-
-            translatorId: project.translatorId,
-            translatorName: translator.name,
-
-            feedbackText: feedback.text,
-            feedbackCreatedAt: feedback.createdAt,
-        })
+    return db
+        .select(projectWithJoinsSelect(translator))
         .from(project)
         .leftJoin(user, eq(project.customerId, user.id))
         .leftJoin(translator, eq(project.translatorId, translator.id))
         .leftJoin(feedback, eq(feedback.projectId, project.id))
         .where(eq(project.state, state));
-
-    return results;
 }
 
 export async function getAllProjectsWithFeedbackByState(
-    state: ProjectState,
+    state: projectState,
 ) {
     const translator = alias(user, "translator");
 
-    const results = await db
-        .select({
-            projectId: project.id,
-            languageCode: project.languageCode,
-            originalFilePrefix: project.originalFilePrefix,
-            translatedFilePrefix: project.translatedFilePrefix,
-            state: project.state,
-            createdAt: project.createdAt,
-
-            customerId: project.customerId,
-            customerName: user.name,
-
-            translatorId: project.translatorId,
-            translatorName: translator.name,
-
-            feedbackText: feedback.text,
-            feedbackCreatedAt: feedback.createdAt,
-        })
+    return db
+        .select(projectWithJoinsSelect(translator))
         .from(project)
-
         .innerJoin(feedback, eq(feedback.projectId, project.id))
         .leftJoin(user, eq(project.customerId, user.id))
         .leftJoin(translator, eq(project.translatorId, translator.id))
         .where(eq(project.state, state));
-
-    return results;
 }
+
+//##################################################################
+//# Delete
+//##################################################################
+
+export async function deleteProjectById(projectId: string, customerId?: string,) {
+    const whereClause = customerId ? and(eq(project.id, projectId), eq(project.customerId, customerId),) : eq(project.id, projectId);
+
+    const result = await db
+        .delete(project)
+        .where(whereClause)
+        .returning();
+
+    if (!result[0]) {
+        throw new Error("Project not found or not owned by customer.");
+    }
+    return result[0];
+}
+
+
+//##################################################################
+//# Types for DTOs
+//##################################################################
+
+export type ProjectWithFeedbackRow =
+    Awaited<ReturnType<typeof getAllProjectsWithFeedback>>[number];

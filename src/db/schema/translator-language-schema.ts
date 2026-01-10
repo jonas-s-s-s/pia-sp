@@ -1,5 +1,6 @@
 import {pgTable, text, uniqueIndex} from "drizzle-orm/pg-core";
 import {user} from "./auth-schema";
+import {project} from "./project-schema.ts";
 
 export const translatorLanguage = pgTable(
     "translator_language",
@@ -18,3 +19,5 @@ export const translatorLanguage = pgTable(
         ),
     ],
 );
+
+export type translatorLanguageRow = typeof translatorLanguage.$inferSelect;
