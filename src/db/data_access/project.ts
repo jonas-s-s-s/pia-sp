@@ -13,7 +13,7 @@ import crypto from "crypto";
 
 function projectWithJoinsSelect(translatorAlias: ReturnType<typeof alias>) {
     return {
-        projectId: project.id,
+        id: project.id,
         languageCode: project.languageCode,
         originalFilePrefix: project.originalFilePrefix,
         translatedFilePrefix: project.translatedFilePrefix,

@@ -1,20 +1,8 @@
 import React from "react";
+import type {ProjectDTO} from "../../../dto/project/ProjectDTO.ts";
+import type {projectState} from "../../db/schema/project-schema.ts";
 
-export type ProjectItem = {
-    projectId: string;
-    languageCode: string;
-    originalFilePrefix: string | null;
-    translatedFilePrefix: string | null;
-    state: "CREATED" | "ASSIGNED" | "COMPLETED" | "APPROVED" | "CLOSED";
-    createdAt: Date;
-    customerId: string | null;
-    customerName: string | null;
-    feedbackText: string | null;
-    feedbackCreatedAt: Date | null;
-
-    translatorId?: string | null;
-    translatorName?: string | null;
-};
+export type ProjectItem = ProjectDTO;
 
 export type ProjectActionsProps = {
     item: ProjectItem;
@@ -23,14 +11,9 @@ export type ProjectActionsProps = {
     deleteProjectItem: (projectId: string) => void;
 };
 
-export type ProjectState =
-    | "CREATED"
-    | "ASSIGNED"
-    | "COMPLETED"
-    | "APPROVED"
-    | "CLOSED";
+export type ProjectState = projectState;
 
-export const PROJECT_STATES: ProjectState[] = [
+export const PROJECT_STATES: string[] = [
     "CREATED",
     "ASSIGNED",
     "COMPLETED",

@@ -64,7 +64,7 @@ export default function LanguageView(props: LanguageViewProps) {
             if (error) {
                 setError(error.message || "Error " + error.code);
             } else if (data) {
-                setItems(data);
+                setItems(data.languageCodes);
             }
 
             setLoading(false);

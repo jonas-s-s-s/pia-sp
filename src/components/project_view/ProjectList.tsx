@@ -19,7 +19,7 @@ export function ProjectList({ items, lang, setError, ProjectActions, deleteProje
         <ul className="list-none space-y-4">
             {items.map((item) => (
                 <ProjectItemCard
-                    key={item.projectId}
+                    key={item.id}
                     item={item}
                     lang={lang}
                     setError={setError}

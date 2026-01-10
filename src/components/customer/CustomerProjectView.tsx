@@ -26,7 +26,7 @@ export default function CustomerProjectsView({lang}: ProjectsViewProps) {
 
 export const CustomerProjectActions: React.FC<ProjectActionsProps> = ({item, lang, setError, deleteProjectItem}) => {
     const handleDownload = async (type: "original" | "translated") => {
-        await downloadFileFromServer(item.projectId, type, (err: string) => {setError(err);});
+        await downloadFileFromServer(item.id, type, (err: string) => {setError(err);});
     };
 
     async function handleDeleteProject(projectId: string) {
@@ -58,7 +58,7 @@ export const CustomerProjectActions: React.FC<ProjectActionsProps> = ({item, lan
             </button>
 
             <button
-                onClick={() => handleDeleteProject(item.projectId)}
+                onClick={() => handleDeleteProject(item.id)}
                 className="border bg-red-100 hover:bg-red-200 active:bg-red-300 px-3 py-1 rounded-lg"
             >
                 Delete Project

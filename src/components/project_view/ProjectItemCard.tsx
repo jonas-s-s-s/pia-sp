@@ -17,19 +17,19 @@ type ProjectItemCardProps = {
 export function ProjectItemCard({item, lang, setError, ProjectActions, deleteProjectItem}: ProjectItemCardProps) {
     return (
         <li className="bg-sky-100 p-3 rounded-lg shadow-sm">
-            <p><strong>Project ID:</strong> {item.projectId}</p>
+            <p><strong>Project ID:</strong> {item.id}</p>
             <p><strong>Language Code:</strong> {item.languageCode}</p>
-            <p><strong>Original File Prefix:</strong> {item.originalFilePrefix || "Null"}</p>
-            <p><strong>Translated File Prefix:</strong> {item.translatedFilePrefix || "Null"}</p>
+            <p><strong>Original File Prefix:</strong> {item.files.originalPrefix || "Null"}</p>
+            <p><strong>Translated File Prefix:</strong> {item.files.translatedPrefix || "Null"}</p>
             <p><strong>State:</strong> {item.state}</p>
             <p><strong>Created At:</strong> {new Date(item.createdAt).toLocaleString()}</p>
-            <p><strong>Customer ID:</strong> {item.customerId || "Null"}</p>
-            <p><strong>Customer Name:</strong> {item.customerName || "Null"}</p>
-            {item.translatorId && <p><strong>Translator ID:</strong> {item.translatorId}</p>}
-            {item.translatorName && <p><strong>Translator Name:</strong> {item.translatorName}</p>}
-            {item.feedbackText && <p className="bg-amber-200"><strong>Feedback:</strong> {item.feedbackText}</p>}
-            {item.feedbackCreatedAt &&
-                <p className="bg-amber-200"><strong>Feedback Date:</strong> {item.feedbackCreatedAt.toLocaleString()}
+            <p><strong>Customer ID:</strong> {item.customer.id || "Null"}</p>
+            <p><strong>Customer Name:</strong> {item.customer.name || "Null"}</p>
+            {item.translator.id && <p><strong>Translator ID:</strong> {item.translator.id}</p>}
+            {item.translator.name && <p><strong>Translator Name:</strong> {item.translator.name}</p>}
+            {item.feedback && <p className="bg-amber-200"><strong>Feedback:</strong> {item.feedback.text}</p>}
+            {item.feedback &&
+                <p className="bg-amber-200"><strong>Feedback Date:</strong> {item.feedback.createdAt.toLocaleString()}
                 </p>}
 
             {ProjectActions && <ProjectActions deleteProjectItem={deleteProjectItem} item={item} lang={lang} setError={setError}/>}

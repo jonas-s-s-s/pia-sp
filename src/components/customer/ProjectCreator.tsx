@@ -8,19 +8,6 @@ type ProjectCreatorProps = {
     lang: string;
 };
 
-type project = {
-    projectId: string;
-    languageCode: string;
-    originalFilePrefix: string | null;
-    translatedFilePrefix: string | null;
-    state: "CREATED" | "ASSIGNED" | "COMPLETED" | "APPROVED" | "CLOSED";
-    createdAt: Date;
-    customerId: string | null;
-    customerName: string | null;
-    feedbackText: string | null;
-    feedbackCreatedAt: Date | null;
-};
-
 export default function ProjectCreator(props: ProjectCreatorProps) {
     const [error, setError] = useState<string | null>(null);
     const [languageCode, setLanguageCode] = useState("");

@@ -36,20 +36,20 @@ services:
     env_file:
       - .env.development
 
-  astro-http-server:
-    build:
-      context: ./
-      dockerfile: Dockerfile
-    container_name: astro_http_server
-    restart: unless-stopped
-    ports:
-      - "80:4321"
-    env_file:
-      - .env.development
-    depends_on:
-      - postgres
-      - minio
-      - fake-smtp
+#  astro-http-server:
+#    build:
+#      context: ./
+#      dockerfile: Dockerfile
+#    container_name: astro_http_server
+#    restart: unless-stopped
+#    ports:
+#      - "80:4321"
+#    env_file:
+#      - .env.development
+#    depends_on:
+#      - postgres
+#      - minio
+#      - fake-smtp
 
 volumes:
   pia_postgres_data:

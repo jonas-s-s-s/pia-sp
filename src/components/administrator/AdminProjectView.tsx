@@ -108,7 +108,7 @@ export const AdminProjectActions: React.FC<ProjectActionsProps> = ({item, lang, 
     return (
         <div className="mt-3 flex gap-2 flex-col">
 
-            {(item.feedbackText && item.state !== "CLOSED") &&
+            {(item.feedback && item.state !== "CLOSED") &&
                 <>
 
                     {sendingEmail ? (
@@ -146,8 +146,8 @@ export const AdminProjectActions: React.FC<ProjectActionsProps> = ({item, lang, 
                             <button
                                 onClick={() => handleSendRespone(
                                     responseText,
-                                    item.projectId,
-                                    destination === EMAIL_DESTINATIONS[0] ? item.customerId : item.translatorId
+                                    item.id,
+                                    destination === EMAIL_DESTINATIONS[0] ? item.customer.id : item.translator.id
                                 )}
                                 className="border bg-amber-100 hover:bg-amber-200 active:bg-amber-300 px-3 py-1 rounded-lg"
                             >
@@ -161,7 +161,7 @@ export const AdminProjectActions: React.FC<ProjectActionsProps> = ({item, lang, 
 
             {item.state == "APPROVED" &&
                 <button
-                    onClick={() => handleMarkAsClosed(item.projectId)}
+                    onClick={() => handleMarkAsClosed(item.id)}
                     className="border bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 px-3 py-1 rounded-lg"
                 >
                     Mark as Closed

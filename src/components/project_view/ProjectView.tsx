@@ -25,7 +25,7 @@ export function ProjectView({lang, title = "Projects", fetchProjects, ProjectAct
 
     const deleteProjectItem = (projectId: string) => {
         setItems(prev =>
-            prev.filter(item => item.projectId !== projectId)
+            prev.filter(item => item.id !== projectId)
         );
     };
     

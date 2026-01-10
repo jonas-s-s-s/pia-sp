@@ -243,7 +243,7 @@ export const customer = {
             // 4) Delete project record from DB
             //#############################################################################
             try {
-                await deleteProjectById(project.projectId, user.id);
+                await deleteProjectById(project.id, user.id);
             } catch (e) {
                 throw new ActionError({
                     code: "INTERNAL_SERVER_ERROR",
@@ -374,7 +374,7 @@ export const customer = {
             // 4) Approve project
             //#############################################################################
             try {
-                const approvedProject = await changeProjectState(project.projectId, projectState.APPROVED);
+                const approvedProject = await changeProjectState(project.id, projectState.APPROVED);
                 return toProjectDTO(approvedProject);
             } catch {
                 throw new ActionError({
@@ -428,7 +428,7 @@ export const customer = {
             // 4) Reject moves it back to "ASSIGNED"
             //#############################################################################
             try {
-                const changedProject = await changeProjectState(project.projectId, projectState.ASSIGNED);
+                const changedProject = await changeProjectState(project.id, projectState.ASSIGNED);
                 return toProjectDTO(changedProject);
             } catch {
                 throw new ActionError({

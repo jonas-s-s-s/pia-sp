@@ -31,7 +31,7 @@ export default function TranslatorProjectsView({lang, projectType}: ProjectsView
 
 export const TranslatorProjectActions: React.FC<ProjectActionsProps> = ({item, lang, setError, deleteProjectItem}) => {
     const handleDownload = async (type: "original" | "translated") => {
-        await downloadFileFromServer(item.projectId, type, (err: string) => {setError(err);});
+        await downloadFileFromServer(item.id, type, (err: string) => {setError(err);});
     };
 
     if (item.state !== "ASSIGNED")
@@ -52,7 +52,7 @@ export const TranslatorProjectActions: React.FC<ProjectActionsProps> = ({item, l
                 Download Translated
             </button>
             <a
-                href={`/${lang}/translator/upload-translated?projectId=${item.projectId}`}
+                href={`/${lang}/translator/upload-translated?projectId=${item.id}`}
                 className="select-none text-center border bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 px-3 py-1 rounded-lg"
             >
                 Upload Translated

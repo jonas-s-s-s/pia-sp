@@ -104,7 +104,7 @@ export const administrator = {
             // 4) Close project
             //#############################################################################
             try {
-                const changedProject = await changeProjectState(project.projectId, projectState.CLOSED);
+                const changedProject = await changeProjectState(project.id, projectState.CLOSED);
                 return toProjectDTO(changedProject);
             } catch {
                 throw new ActionError({

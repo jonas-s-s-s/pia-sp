@@ -29,7 +29,7 @@ export const CompletedProjectActions: React.FC<ProjectActionsProps> = ({item, la
 
 
     const handleDownload = async (type: "original" | "translated") => {
-        await downloadFileFromServer(item.projectId, type, (err: string) => {setError(err);});
+        await downloadFileFromServer(item.id, type, (err: string) => {setError(err);});
     };
 
     async function handleAddFeedBack(text: string, projectId: string) {
@@ -88,21 +88,21 @@ export const CompletedProjectActions: React.FC<ProjectActionsProps> = ({item, la
             />
 
             <button
-                onClick={() => handleAddFeedBack(reviewText, item.projectId)}
+                onClick={() => handleAddFeedBack(reviewText, item.id)}
                 className="border bg-amber-100 hover:bg-amber-200 active:bg-amber-300 px-3 py-1 rounded-lg"
             >
                 Add Feedback
             </button>
 
             <button
-                onClick={() => handleApprove(item.projectId)}
+                onClick={() => handleApprove(item.id)}
                 className="mt-2 border bg-green-100 hover:bg-green-200 active:bg-green-300 px-3 py-1 rounded-lg"
             >
                 Approve
             </button>
 
             <button
-                onClick={() => handleReject(item.projectId)}
+                onClick={() => handleReject(item.id)}
                 className="border bg-red-100 hover:bg-red-200 active:bg-red-300 px-3 py-1 rounded-lg"
             >
                 Reject
