@@ -2,6 +2,7 @@
 
 ## Obsah
 
+- [Úpravy 10/01/2026](#úpravy-10012026)
 - [Obsah](#obsah)
 - [Popis projektu](#popis-projektu)
 - [Použité technologie](#použité-technologie)
@@ -10,6 +11,75 @@
 - [Spuštění testů](#spuštění-testů)
 - [Ukázka použití](#ukázka-použití)
 - [Další ukázky](#další-ukázky)
+
+## Úpravy 10/01/2026
+
+### Absence dedikovaných datových objektů
+- Byla přidána složka `/src/dto`
+- Použit pattern, kdy vždy jedna DTO třída má svůj "mapper", podobně jako zde: https://profy.dev/article/react-architecture-domain-entities-and-dtos
+- Všechny funkce v `/src/actions` nyní vrací DTO objekt 
+
+### REST API
+
+- Byla přidána REST API poskytující body uvedené v zadání: `API for project management module (project creation, project retrieval, project state changes)`
+- SwaggerUI dokumentace dostupná na `localhost:80/api-docs`, zde je možné jednotlivé endpointy vyzkoušet
+
+### Přihlášení přes GitHub
+
+- GitHub přihlášení bylo vždy funkční, jen potřebuje správně nastavit
+- Redirect dělá na hlavní stránku, protože nerozlišuje "registraci" a "přihlášení", nicméně uživatel si roli pořád může změnit tlačítkem na stránce `/my-profile`
+
+<img alt="github.png" src="./docs/github.png" width="400"/>
+
+### Nelze sestavit a spustit jedním příkazem, manuální inicializace databáze 
+
+- Drizzle nepodporuje automatické vytvoření tabulek
+- Řešením bylo přidání skriptu `drizzle/migrate.sql` vygenerovaného pomocí `drizzle-kit generate`, pak přidání `./drizzle/migrate.sql:/docker-entrypoint-initdb.d/migrate.sql:ro` do docker-compose, to způsobí spuštění skriptu při inicializaci PG databáze
+- https://orm.drizzle.team/docs/kit-overview#generate-migrations
+- https://www.answeroverflow.com/m/1337125001719058562
+
+### TypeScript konfigurace a chyba kompilace
+
+- Kompilace je úspěšná i **bez** toho, aniž by se do configu přidalo:
+```
+"allowImportingTsExtensions": true,
+"types": ["astro/client"]
+```
+- V kořenovém adresáři stačí provést příkaz `tsc`:
+```
+PS C:\Users\PC\Documents\GitHub\pia-sp> tsc
+```
+- Příkaz nevypisuje žádné chyby - kompilace byla úspěšná
+- Že opravdu kompiluje celý projekt si lze ověřit příkazem:
+- V kořenovém adresáři stačí provést příkaz `tsc`:
+```
+PS C:\Users\PC\Documents\GitHub\pia-sp> tsc --listFiles --noEmit
+```
+- Zde by měl vypsat vše ze složky `/node_modules/` a `/src/`, včetně podsložky `/components/`
+
+### Typescript "as" keyword antipattern
+
+"as" má jiné chování než specifikace typu pomocí ":", například:
+```
+// test/unit/userRoleManager.test.ts:6
+const mockUser = {id: '123'} as User;
+```
+
+- je zde "as" použito účelně, jinak by se musel zvlášť nastavit každý atribut objektu, při použití as jsou tak nevyplněné atributy automaticky null
+
+
+- Nebo:
+```
+// src/actions/customer.ts:83
+const projectId = input.get("projectId") as string | null;
+```
+
+- Zde se "as" chová jako "vynucení typu", a nelze ho tak odstranit. Změna na ":" způsobí chybu:
+
+```
+// Error: TS2322: Type FormDataEntryValue | null is not assignable to type string | null
+const projectId: string | null = input.get("projectId");
+```
 
 ## Popis projektu
 
