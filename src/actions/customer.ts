@@ -10,15 +10,22 @@ import {
     createProject,
     deleteProjectById,
     getProjectById,
-    getProjectsByCustomerId, getProjectsByCustomerIdAndState,
-    setOriginalFilePrefix, setProjectFeedback,
+    getProjectsByCustomerId,
+    getProjectsByCustomerIdAndState,
+    setOriginalFilePrefix,
+    setProjectFeedback,
 } from "../db/data_access/project.ts";
 import {deleteProjectBucketPrefix, projectBucketUploadFile} from "../lib_backend/objectStorage.ts";
 import {allocateProject} from "../lib_backend/project/projectAllocator.ts";
 import {
-    hasAddProjectFeedbackPermission, hasCreateProjectPermission,
-    hasDeleteProjectsPermission, hasUploadOriginalFilePermission, hasViewMyProjectsPermission
+    hasAddProjectFeedbackPermission,
+    hasCreateProjectPermission,
+    hasDeleteProjectsPermission,
+    hasUploadOriginalFilePermission,
+    hasViewMyProjectsPermission
 } from "../lib_backend/user_roles/permissionChecking.ts";
+import {toProjectDTO} from "../../dto/project/ProjectMapper.ts";
+import {projectState} from "../db/schema/project-schema.ts";
 
 export const customer = {
     createProject: defineAction({
@@ -46,10 +53,12 @@ export const customer = {
             // 3) Create project
             //#############################################################################
             try {
-                return await createProject({
+                const project = await createProject({
                     customerId: user.id,
                     languageCode: input.languageCode,
                 });
+
+                return toProjectDTO(project)
             } catch (e) {
                 throw new ActionError({
                     code: "INTERNAL_SERVER_ERROR",
@@ -58,6 +67,7 @@ export const customer = {
             }
         },
     }),
+
     uploadOriginalFile: defineAction({
         accept: "form",
         handler: async (input, context) => {
@@ -96,8 +106,7 @@ export const customer = {
 
             // 3) Verify that project exists, and that user is assigned to it as customer
             //#############################################################################
-            const data = await getProjectById(projectId);
-            const project = data?.project;
+            const project = await getProjectById(projectId);
 
             if (!project) {
                 throw new ActionError({code: "NOT_FOUND", message: "Project not found"});
@@ -112,7 +121,7 @@ export const customer = {
 
             // 4) File can be uploaded only if the project is in "CREATED" state
             //#############################################################################
-            if (project.state !== "CREATED") {
+            if (project.state !== projectState.CREATED) {
                 throw new ActionError({
                     code: "BAD_REQUEST",
                     message: "File can be uploaded only if the project is in 'CREATED' state"
@@ -151,10 +160,14 @@ export const customer = {
             try {
                 await allocateProject(project);
             } catch (e) {
-                throw new ActionError({code: "INTERNAL_SERVER_ERROR", message: "Project allocation to translator failed"});
+                throw new ActionError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Project allocation to translator failed"
+                });
             }
         }
     }),
+
     getMyProjects: defineAction({
         input: z.object({}),
         handler: async (input, context) => {
@@ -168,7 +181,8 @@ export const customer = {
             }
 
             try {
-                return await getProjectsByCustomerId(user.id);
+                const projects = await getProjectsByCustomerId(user.id);
+                return projects.map(toProjectDTO);
             } catch (e) {
                 throw new ActionError({
                     code: "INTERNAL_SERVER_ERROR",
@@ -193,8 +207,7 @@ export const customer = {
 
             // 2) Verify project exists and belongs to this customer
             //#############################################################################
-            const data = await getProjectById(input.projectId);
-            const project = data?.project;
+            const project = await getProjectById(input.projectId);
 
             if (!project) {
                 throw new ActionError({
@@ -230,7 +243,7 @@ export const customer = {
             // 4) Delete project record from DB
             //#############################################################################
             try {
-                await deleteProjectById(project.id, user.id);
+                await deleteProjectById(project.projectId, user.id);
             } catch (e) {
                 throw new ActionError({
                     code: "INTERNAL_SERVER_ERROR",
@@ -253,7 +266,8 @@ export const customer = {
             }
 
             try {
-                return await getProjectsByCustomerIdAndState(user.id, "COMPLETED");
+                const projects = await getProjectsByCustomerIdAndState(user.id, projectState.COMPLETED);
+                return projects.map(toProjectDTO);
             } catch (e) {
                 throw new ActionError({
                     code: "INTERNAL_SERVER_ERROR",
@@ -277,8 +291,7 @@ export const customer = {
 
             // 1) Load project
             //#############################################################################
-            const data = await getProjectById(input.projectId);
-            const project = data?.project;
+            const project = await getProjectById(input.projectId);
 
             if (!project) {
                 throw new ActionError({
@@ -298,7 +311,7 @@ export const customer = {
 
             // 3) State check
             //#############################################################################
-            if (project.state !== "COMPLETED") {
+            if (project.state !== projectState.COMPLETED) {
                 throw new ActionError({
                     code: "BAD_REQUEST",
                     message: "Feedback can only be set for COMPLETED projects",
@@ -308,7 +321,7 @@ export const customer = {
             // 4) Save user feedback
             //#############################################################################
             try {
-                return await setProjectFeedback(input.projectId, input.text);
+                await setProjectFeedback(input.projectId, input.text);
             } catch (e) {
                 throw new ActionError({
                     code: "INTERNAL_SERVER_ERROR",
@@ -331,8 +344,7 @@ export const customer = {
 
             // 1) Load project
             //#############################################################################
-            const data = await getProjectById(input.projectId);
-            const project = data?.project;
+            const project = await getProjectById(input.projectId);
 
             if (!project) {
                 throw new ActionError({
@@ -362,7 +374,8 @@ export const customer = {
             // 4) Approve project
             //#############################################################################
             try {
-                return await changeProjectState(project.id, "APPROVED");
+                const approvedProject = await changeProjectState(project.projectId, projectState.APPROVED);
+                return toProjectDTO(approvedProject);
             } catch {
                 throw new ActionError({
                     code: "INTERNAL_SERVER_ERROR",
@@ -385,8 +398,7 @@ export const customer = {
 
             // 1) Load project
             //#############################################################################
-            const data = await getProjectById(input.projectId);
-            const project = data?.project;
+            const project = await getProjectById(input.projectId);
 
             if (!project) {
                 throw new ActionError({
@@ -416,7 +428,8 @@ export const customer = {
             // 4) Reject moves it back to "ASSIGNED"
             //#############################################################################
             try {
-                return await changeProjectState(project.id, "ASSIGNED");
+                const changedProject = await changeProjectState(project.projectId, projectState.ASSIGNED);
+                return toProjectDTO(changedProject);
             } catch {
                 throw new ActionError({
                     code: "INTERNAL_SERVER_ERROR",
