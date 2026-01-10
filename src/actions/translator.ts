@@ -31,6 +31,9 @@ import {
     hasViewAssignedProjectsPermission,
     hasViewMyLanguagesPermission
 } from "../lib_backend/user_roles/permissionChecking.ts";
+import {toTranslatorLanguagesDTO} from "../../dto/translator/TranslatorLanguagesMapper.ts";
+import {projectState} from "../db/schema/project-schema.ts";
+import {toProjectDTO} from "../../dto/project/ProjectMapper.ts";
 
 export const translator = {
     addMyLanguages: defineAction({
@@ -89,7 +92,8 @@ export const translator = {
             }
 
             try {
-                return await getTranslatorLanguages(user.id);
+                const myLanguages = await getTranslatorLanguages(user.id);
+                return toTranslatorLanguagesDTO(user.id, myLanguages);
             } catch (e) {
                 throw new ActionError({code: "INTERNAL_SERVER_ERROR"});
             }
@@ -124,8 +128,7 @@ export const translator = {
 
             // 2) Verify that project exists, and that user is assigned to it as translator
             //#############################################################################
-            const data = await getProjectById(projectId);
-            const project = data?.project;
+            const project = await getProjectById(projectId);
 
             if (!project) {
                 throw new ActionError({code: "NOT_FOUND", message: "Project not found"});
@@ -187,7 +190,7 @@ export const translator = {
 
             // 8) Change project state
             //#############################################################################
-            await changeProjectState(projectId, "COMPLETED");
+            await changeProjectState(projectId, projectState.COMPLETED);
 
             // 9) Notify customer that the project is completed
             //#############################################################################
@@ -208,7 +211,8 @@ export const translator = {
             }
 
             try {
-                return await getProjectsByTranslatorIdAndState(user.id, "ASSIGNED");
+                const projects = await getProjectsByTranslatorIdAndState(user.id, projectState.ASSIGNED);
+                return projects.map(toProjectDTO);
             } catch (e) {
                 throw new ActionError({code: "INTERNAL_SERVER_ERROR"});
             }
@@ -225,7 +229,8 @@ export const translator = {
             }
 
             try {
-                return await getProjectsByTranslatorId(user.id);
+                const projects = await getProjectsByTranslatorId(user.id);
+                return projects.map(toProjectDTO);
             } catch (e) {
                 throw new ActionError({code: "INTERNAL_SERVER_ERROR"});
             }
@@ -242,7 +247,8 @@ export const translator = {
             }
 
             try {
-                return await getProjectsByTranslatorIdNonAssigned(user.id);
+                const projects = await getProjectsByTranslatorIdNonAssigned(user.id);
+                return projects.map(toProjectDTO);
             } catch (e) {
                 throw new ActionError({code: "INTERNAL_SERVER_ERROR"});
             }
@@ -260,20 +266,19 @@ export const translator = {
             // 0) Check user's permission to download file
             //#############################################################################
             if (input.type === "translated" && !await hasDownloadTranslatedFilePermission(user)) {
-                throw new ActionError({ code: "UNAUTHORIZED" });
+                throw new ActionError({code: "UNAUTHORIZED"});
             }
 
             if (input.type === "original" && !await hasDownloadOriginalFilePermission(user)) {
-                throw new ActionError({ code: "UNAUTHORIZED" });
+                throw new ActionError({code: "UNAUTHORIZED"});
             }
 
             // 1) Verify that project exists, and that user is assigned to it as a translator or customer
             //#############################################################################
-            const data = await getProjectById(input.projectId);
-            const project = data?.project;
+            const project = await getProjectById(input.projectId);
 
             if (!project) {
-                throw new ActionError({ code: "NOT_FOUND", message: "Project not found" });
+                throw new ActionError({code: "NOT_FOUND", message: "Project not found"});
             }
 
             if (project.translatorId !== user.id && project.customerId !== user.id) {
@@ -305,12 +310,10 @@ export const translator = {
                 };
             } catch (e) {
                 console.error(e);
-                throw new ActionError({ code: "INTERNAL_SERVER_ERROR", message: "Unable to fetch file" });
+                throw new ActionError({code: "INTERNAL_SERVER_ERROR", message: "Unable to fetch file"});
             }
         },
     }),
-
-
 
 
 };
