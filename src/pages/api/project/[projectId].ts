@@ -18,7 +18,7 @@ export const GET: APIRoute = async ({params, locals}) => {
 
     // User has to be either Admin, or one of the users assigned to the project
     const allowed =
-        user.role === "ADMINISTRATOR" ||
+        user.role === "Administrator" ||
         project.customerId === user.id ||
         project.translatorId === user.id;
 

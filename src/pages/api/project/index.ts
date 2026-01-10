@@ -1,9 +1,8 @@
 import type {APIRoute} from "astro";
 import {isIso6391} from "../../../lib_frontend/iso-639-1";
 import {
-    createProject,
-    getAllProjectsWithFeedback, getAllProjectsWithFeedbackByState,
-    getProjectsByCustomerId,
+    createProject, getAllProjectsByState,
+    getAllProjectsWithFeedback, getProjectsByCustomerId,
     getProjectsByTranslatorId,
 } from "../../../db/data_access/project";
 import {toProjectDTO} from "../../../dto/project/ProjectMapper";
@@ -63,13 +62,13 @@ export const GET: APIRoute = async ({request, locals}) => {
     let projects;
 
 
-    if (user.role === "ADMINISTRATOR") {
+    if (user.role === "Administrator") {
         // Admin can either filter the projects by their state or get all
-        projects = state ? await getAllProjectsWithFeedbackByState(state) : await getAllProjectsWithFeedback();
-    } else if (user.role === "TRANSLATOR") {
+        projects = state ? await getAllProjectsByState(state) : await getAllProjectsWithFeedback();
+    } else if (user.role === "Translator") {
         // Translator can only get projects assigned to him
         projects = await getProjectsByTranslatorId(user.id);
-    } else if (user.role === "CUSTOMER") {
+    } else if (user.role === "Customer") {
         // Customer can get projects he owns
         projects = await getProjectsByCustomerId(user.id);
     } else {

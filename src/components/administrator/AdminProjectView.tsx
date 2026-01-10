@@ -19,7 +19,7 @@ export default function AdminProjectView({lang}: AdminProjectViewProps) {
 
     const fetchProjects = async () => {
         if (filteredState) {
-            return actions.administrator.getAllProjectsWithFeedbackByState({
+            return actions.administrator.getAllProjectsByState({
                 state: filteredState,
             });
         }
@@ -43,7 +43,7 @@ export default function AdminProjectView({lang}: AdminProjectViewProps) {
                     }
                     className="px-3 py-2 rounded-lg border border-zinc-300 bg-white focus:outline-none focus:ring-2"
                 >
-                    <option value="">All states</option>
+                    <option value="">All states with feedback</option>
                     {PROJECT_STATES.map((state) => (
                         <option key={state} value={state}>
                             {state}
