@@ -6,7 +6,7 @@ vi.unmock("../../src/db/data_access/project.ts");
 vi.unmock("../../src/db/data_access/user.ts");
 vi.unmock("../../src/db/data_access/translator.ts");
 
-import {project} from "../../src/db/schema/project-schema.ts";
+import {project, projectState} from "../../src/db/schema/project-schema.ts";
 import {user} from "../../src/db/schema/auth-schema.ts";
 import {
     createProject,
@@ -59,7 +59,7 @@ describe("Project storage integration tests", () => {
         expect(result[0].customerId).toBe(customerId);
         expect(result[0].languageCode).toBe("cs");
         expect(result[0].translatorId).toBeNull();
-        expect(result[0].state).toBe("CREATED");
+        expect(result[0].state).toBe(projectState.CREATED);
         expect(result[0].createdAt).toBeInstanceOf(Date);
     });
 
@@ -71,7 +71,7 @@ describe("Project storage integration tests", () => {
         await assignTranslatorToProject(created.id, translatorId);
 
         const stored = await getProjectById(created.id);
-        expect(stored?.project.translatorId).toBe(translatorId);
+        expect(stored?.translatorId).toBe(translatorId);
     });
 
     it("HAPPY PATH: change project state", async () => {
@@ -79,10 +79,10 @@ describe("Project storage integration tests", () => {
             customerId,
             languageCode: "cs",
         });
-        await changeProjectState(created.id, "ASSIGNED");
+        await changeProjectState(created.id, projectState.ASSIGNED);
 
         const stored = await getProjectById(created.id);
-        expect(stored?.project.state).toBe("ASSIGNED");
+        expect(stored?.state).toBe(projectState.ASSIGNED);
     });
 
     it("HAPPY PATH: delete project", async () => {

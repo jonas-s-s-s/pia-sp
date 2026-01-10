@@ -4,19 +4,19 @@ import * as projectFile from "../../src/db/data_access/project.ts";
 import * as translatorFile from "../../src/db/data_access/translator.ts";
 import * as userFile from "../../src/db/data_access/user.ts";
 import * as emailFile from "../../src/lib_backend/email.ts";
-import type {Project} from "../../src/db/data_access/project.ts";
+import {type projectRow, projectState} from "../../src/db/schema/project-schema.ts";
 
 describe("allocateProject", () => {
-    const project = {
+    const project: projectRow = {
         id: "p-id",
         customerId: "example-c-id",
         translatorId: null,
         languageCode: "cs",
         originalFilePrefix: "/prefix/o",
         translatedFilePrefix: null,
-        state: "CREATED",
+        state: projectState.CREATED,
         createdAt: new Date(),
-    } as Project;
+    };
 
     it("HAPPY PATH: translator is found, project is assigned to him", async () => {
 
@@ -32,7 +32,7 @@ describe("allocateProject", () => {
         // changeProjectState is executed as the next line after assignTranslatorToProject
         expect(projectFile.changeProjectState).toHaveBeenCalledWith(
             project.id,
-            "ASSIGNED"
+            projectState.ASSIGNED
         );
 
         // After the previous two calls, mocker translator's email is translator@example.com
@@ -66,7 +66,7 @@ describe("allocateProject", () => {
 
         expect(projectFile.changeProjectState).toHaveBeenCalledWith(
             project.id,
-            "CLOSED"
+            projectState.CLOSED
         );
     });
 
