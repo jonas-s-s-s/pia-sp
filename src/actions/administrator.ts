@@ -5,16 +5,22 @@ import type {User} from "../../auth.ts";
 import {isUserLoggedIn} from "./actionUtils/userAuth.ts";
 
 import {
+    changeProjectState,
+    getAllProjectsByState,
     getAllProjectsWithFeedback,
-    getAllProjectsByState, changeProjectState, getProjectById, getAllProjectsWithFeedbackByState,
+    getAllProjectsWithFeedbackByState,
+    getProjectById,
 } from "../db/data_access/project.ts";
 
 import {getUserById} from "../db/data_access/user.ts";
 import {sendProjectFeedback} from "../lib_backend/email.ts";
 import {
     hasAdminMarkAsClosedPermission,
-    hasAdminReactToFeedbackPermission, hasAdminViewProjectsPermission
+    hasAdminReactToFeedbackPermission,
+    hasAdminViewProjectsPermission
 } from "../lib_backend/user_roles/permissionChecking.ts";
+import {toProjectDTO} from "../../dto/project/ProjectMapper.ts";
+import {projectState} from "../db/schema/project-schema.ts";
 
 export const administrator = {
     getAllProjectsWithFeedback: defineAction({
@@ -27,7 +33,8 @@ export const administrator = {
             }
 
             try {
-                return await getAllProjectsWithFeedback();
+                const projects = await getAllProjectsWithFeedback()
+                return projects.map(toProjectDTO);
             } catch {
                 throw new ActionError({
                     code: "INTERNAL_SERVER_ERROR",
@@ -39,13 +46,7 @@ export const administrator = {
 
     getAllProjectsByState: defineAction({
         input: z.object({
-            state: z.enum([
-                "CREATED",
-                "ASSIGNED",
-                "COMPLETED",
-                "APPROVED",
-                "CLOSED",
-            ]),
+            state: z.nativeEnum(projectState)
         }),
         handler: async (input, context) => {
             const user: User = isUserLoggedIn(context);
@@ -55,7 +56,8 @@ export const administrator = {
             }
 
             try {
-                return await getAllProjectsByState(input.state);
+                const projects = await getAllProjectsByState(input.state);
+                return projects.map(toProjectDTO);
             } catch {
                 throw new ActionError({
                     code: "INTERNAL_SERVER_ERROR",
@@ -80,8 +82,7 @@ export const administrator = {
 
             // 2) Load project
             //#############################################################################
-            const data = await getProjectById(input.projectId);
-            const project = data?.project;
+            const project = await getProjectById(input.projectId);
 
             if (!project) {
                 throw new ActionError({
@@ -93,7 +94,7 @@ export const administrator = {
             // 3) Verify that project is in the "APPROVED" phase
             //#############################################################################
 
-            if (project.state !== "APPROVED") {
+            if (project.state !== projectState.APPROVED) {
                 throw new ActionError({
                     code: "BAD_REQUEST",
                     message: "Only APPROVED project can be closed",
@@ -103,7 +104,8 @@ export const administrator = {
             // 4) Close project
             //#############################################################################
             try {
-                return await changeProjectState(project.id, "CLOSED");
+                const changedProject = await changeProjectState(project.projectId, projectState.CLOSED);
+                return toProjectDTO(changedProject);
             } catch {
                 throw new ActionError({
                     code: "INTERNAL_SERVER_ERROR",
@@ -163,13 +165,7 @@ export const administrator = {
 
     getAllProjectsWithFeedbackByState: defineAction({
         input: z.object({
-            state: z.enum([
-                "CREATED",
-                "ASSIGNED",
-                "COMPLETED",
-                "APPROVED",
-                "CLOSED",
-            ]),
+            state: z.nativeEnum(projectState)
         }),
         handler: async (input, context) => {
             const user: User = isUserLoggedIn(context);
@@ -179,7 +175,8 @@ export const administrator = {
             }
 
             try {
-                return await getAllProjectsWithFeedbackByState(input.state);
+                const projects = await getAllProjectsWithFeedbackByState(input.state);
+                return projects.map(toProjectDTO);
             } catch {
                 throw new ActionError({
                     code: "INTERNAL_SERVER_ERROR",
